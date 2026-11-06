@@ -1,0 +1,553 @@
+{
+ "horodatage": "2026-11-01T08:51:06",
+ "compte": "CIBC 606541",
+ "periode": "2026-10",
+ "periode_debut": "2026-10",
+ "db_path": "C:\\Users\\Marco\\Desktop\\Bibliothèque\\Projets AI\\Projet python\\Agents\\orchestrateur_usinage_v2\\demo_live\\donnees\\base_demo.db",
+ "statut_pipeline": "complet",
+ "message_pipeline": "Pipeline A1→A7 réussi. 0 écriture(s) chargée(s) {}, 9 doublon(s) ignoré(s). Prêt pour A4 (Prévision). 2 série(s) prévue(s) sur 6 mois. Flux net prévu cumulé : 991,948 $. 2026-10 : 5 ligne(s) avec écart significatif ; flux net réel 721 115 $. Commentaire : llm. Approuvé : 11/11 contrôles réussis (empreinte 3a7c6cb121a80e2e). 2 fichier(s) produit(s) dans C:\\Users\\Marco\\Desktop\\Bibliothèque\\Projets AI\\Projet python\\Agents\\orchestrateur_usinage_v2\\demo_live\\donnees\\runs\\d085005_normal\\sorties\\2026-10 (7 feuilles ; synthèse : llm).",
+ "mode_llm": "reel",
+ "agents": [
+  {
+   "id": "A1",
+   "nom": "Acquisition",
+   "statut": "complet",
+   "message": "Compte CIBC 606541 : 1 période(s) couverte(s), aucun trou détecté. Prêt pour A2 (Extraction)."
+  },
+  {
+   "id": "A2",
+   "nom": "Extraction",
+   "statut": "complet",
+   "message": "9 transaction(s) extraite(s) (format F3), aucune anomalie. Prêt pour A3."
+  },
+  {
+   "id": "A3",
+   "nom": "Réconciliation",
+   "statut": "complet",
+   "message": "0 écriture(s) chargée(s) {}, 9 doublon(s) ignoré(s). Prêt pour A4 (Prévision)."
+  },
+  {
+   "id": "A4",
+   "nom": "Prévision",
+   "statut": "complet",
+   "message": "2 série(s) prévue(s) sur 6 mois. Flux net prévu cumulé : 991,948 $."
+  },
+  {
+   "id": "A5",
+   "nom": "Écarts",
+   "statut": "complet",
+   "message": "2026-10 : 5 ligne(s) avec écart significatif ; flux net réel 721 115 $. Commentaire : llm."
+  },
+  {
+   "id": "A6",
+   "nom": "Contrôle",
+   "statut": "approuve",
+   "message": "Approuvé : 11/11 contrôles réussis (empreinte 3a7c6cb121a80e2e)."
+  },
+  {
+   "id": "A8",
+   "nom": "Relecture",
+   "statut": "ok",
+   "message": "Relecture llm : 0 réserve(s), 0 remarque(s)."
+  },
+  {
+   "id": "A7",
+   "nom": "Reporting",
+   "statut": "complet",
+   "message": "2 fichier(s) produit(s) dans C:\\Users\\Marco\\Desktop\\Bibliothèque\\Projets AI\\Projet python\\Agents\\orchestrateur_usinage_v2\\demo_live\\donnees\\runs\\d085005_normal\\sorties\\2026-10 (7 feuilles ; synthèse : llm)."
+  }
+ ],
+ "transactions": [
+  {
+   "fichier": "CIBC 606541 - 2026-10.pdf",
+   "date": "2026-10-03",
+   "description": "DEPOSIT CONTRAT RAIL - ALSTOM LA POCATIERE F",
+   "montant": 235654.25,
+   "solde": 1289936.6
+  },
+  {
+   "fichier": "CIBC 606541 - 2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "PREAUTH DEBIT PAIE ADMINISTRATION - REMISES",
+   "montant": -83455.27,
+   "solde": 1206481.33
+  },
+  {
+   "fichier": "CIBC 606541 - 2026-10.pdf",
+   "date": "2026-10-14",
+   "description": "BILL PAYMENT FORMATION - CSMO-M FACT 80673",
+   "montant": -6162.51,
+   "solde": 1200318.82
+  },
+  {
+   "fichier": "CIBC 606541 - 2026-10.pdf",
+   "date": "2026-10-15",
+   "description": "BILL PAYMENT OUTILLAGE - KENNAMETAL CANADA F",
+   "montant": -18411.72,
+   "solde": 1181907.1
+  },
+  {
+   "fichier": "CIBC 606541 - 2026-10.pdf",
+   "date": "2026-10-16",
+   "description": "PREAUTH DEBIT BDC - BANQUE DE DEVELOPPEMENT",
+   "montant": -13406.33,
+   "solde": 1168500.77
+  },
+  {
+   "fichier": "CIBC 606541 - 2026-10.pdf",
+   "date": "2026-10-20",
+   "description": "DEPOSIT FACTURE USINAGE - KRUGER TROIS-RIVIE",
+   "montant": 157773.63,
+   "solde": 1326274.4
+  },
+  {
+   "fichier": "CIBC 606541 - 2026-10.pdf",
+   "date": "2026-10-27",
+   "description": "PREAUTH DEBIT HYDRO - HYDRO-QUEBEC TARIF M F",
+   "montant": -61032.07,
+   "solde": 1265242.33
+  },
+  {
+   "fichier": "CIBC 606541 - 2026-10.pdf",
+   "date": "2026-10-30",
+   "description": "PREAUTH DEBIT ASSURANCE - INTACT ASSURANCE E",
+   "montant": -9274.58,
+   "solde": 1255967.75
+  },
+  {
+   "fichier": "CIBC 606541 - 2026-10.pdf",
+   "date": "2026-10-31",
+   "description": "BILL PAYMENT DEPLACEMENT - AIR CANADA FACT 8",
+   "montant": -1630.2,
+   "solde": 1254337.55
+  }
+ ],
+ "resume_a3": {
+  "inseres_staging": 0,
+  "promus_journal_general": 0,
+  "doublons_ignores": 9,
+  "a_classer": 0,
+  "par_methode": {}
+ },
+ "residu_a3": [],
+ "previsions": {
+  "Revenu": {
+   "ic_methode": "RMSE du backtest",
+   "ic_note": "Revenu : l'intervalle SARIMAX était instable (valeurs aberrantes) ; remplacé par prévision ± z × RMSE du backtest (527 772 $).",
+   "methode": "SARIMAX",
+   "periodes": [
+    "2027-01",
+    "2027-02",
+    "2027-03",
+    "2027-04",
+    "2027-05",
+    "2027-06"
+   ],
+   "valeurs": [
+    1003933.15,
+    1149371.77,
+    1308584.0,
+    1357528.26,
+    1393842.04,
+    1432288.13
+   ],
+   "ci80": [
+    [
+     327539.97,
+     1680326.33
+    ],
+    [
+     472978.59,
+     1825764.95
+    ],
+    [
+     632190.82,
+     1984977.18
+    ],
+    [
+     681135.08,
+     2033921.44
+    ],
+    [
+     717448.86,
+     2070235.22
+    ],
+    [
+     755894.95,
+     2108681.31
+    ]
+   ],
+   "ci95": [
+    [
+     0.0,
+     2038367.16
+    ],
+    [
+     114937.75,
+     2183805.78
+    ],
+    [
+     274149.99,
+     2343018.02
+    ],
+    [
+     323094.25,
+     2391962.28
+    ],
+    [
+     359408.03,
+     2428276.06
+    ],
+    [
+     397854.11,
+     2466722.14
+    ]
+   ],
+   "backtest": {
+    "mae": 319074.48,
+    "rmse": 527772.46,
+    "bias": -168386.19,
+    "mape": 0.1843
+   },
+   "diagnostics": {
+    "aic": 401640.3041892961,
+    "bic": 401652.746973788,
+    "llf": -200812.15209464805,
+    "converged": true,
+    "nobs": 48
+   },
+   "parametres": {
+    "order": [
+     1,
+     0,
+     0
+    ],
+    "seasonal_order": [
+     1,
+     0,
+     1,
+     12
+    ],
+    "trend_exog": true,
+    "fourier_k": 1
+   },
+   "derniere_observation": "2026-12"
+  },
+  "Decaissements": {
+   "ic_methode": "RMSE du backtest",
+   "ic_note": "Decaissements : l'intervalle SARIMAX était instable (valeurs aberrantes) ; remplacé par prévision ± z × RMSE du backtest (290 816 $).",
+   "methode": "SARIMAX",
+   "periodes": [
+    "2027-01",
+    "2027-02",
+    "2027-03",
+    "2027-04",
+    "2027-05",
+    "2027-06"
+   ],
+   "valeurs": [
+    982439.9,
+    1075490.84,
+    1158658.0,
+    1155600.49,
+    1150076.07,
+    1131334.1
+   ],
+   "ci80": [
+    [
+     609730.62,
+     1355149.19
+    ],
+    [
+     702781.55,
+     1448200.13
+    ],
+    [
+     785948.72,
+     1531367.29
+    ],
+    [
+     782891.2,
+     1528309.78
+    ],
+    [
+     777366.78,
+     1522785.35
+    ],
+    [
+     758624.81,
+     1504043.38
+    ]
+   ],
+   "ci95": [
+    [
+     412441.31,
+     1552438.5
+    ],
+    [
+     505492.24,
+     1645489.44
+    ],
+    [
+     588659.41,
+     1728656.6
+    ],
+    [
+     585601.89,
+     1725599.09
+    ],
+    [
+     580077.47,
+     1720074.66
+    ],
+    [
+     561335.5,
+     1701332.69
+    ]
+   ],
+   "backtest": {
+    "mae": 239636.66,
+    "rmse": 290815.61,
+    "bias": 126601.11,
+    "mape": 0.1971
+   },
+   "diagnostics": {
+    "aic": 244074.61116891488,
+    "bic": 244087.0539534068,
+    "llf": -122029.30558445744,
+    "converged": true,
+    "nobs": 48
+   },
+   "parametres": {
+    "order": [
+     1,
+     0,
+     0
+    ],
+    "seasonal_order": [
+     1,
+     0,
+     1,
+     12
+    ],
+    "trend_exog": true,
+    "fourier_k": 1
+   },
+   "derniere_observation": "2026-12"
+  }
+ },
+ "flux_net_prevu": {
+  "periodes": [
+   "2027-01",
+   "2027-02",
+   "2027-03",
+   "2027-04",
+   "2027-05",
+   "2027-06"
+  ],
+  "valeurs": [
+   21493.25,
+   73880.93,
+   149926.0,
+   201927.77,
+   243765.97,
+   300954.03
+  ],
+  "source": "Revenu prévu − Décaissements prévus (calcul déterministe)"
+ },
+ "ecarts": [
+  {
+   "code": "Revenu",
+   "libelle": "Revenus",
+   "reel": 2495301.44,
+   "budget": 1290262.425,
+   "prevu": 1461533.700735139,
+   "ecart_budget": 1205039.015,
+   "ecart_budget_pct": 0.9339487779007436,
+   "jugement_budget": "significatif_favorable",
+   "ecart_prevision": 1033767.739264861,
+   "ecart_prevision_pct": 0.7073170729794904,
+   "jugement_prevision": "significatif_favorable"
+  },
+  {
+   "code": "Fixe",
+   "libelle": "Frais fixes",
+   "reel": 518052.12,
+   "budget": 255779.62,
+   "prevu": 291052.88112940616,
+   "ecart_budget": 262272.5,
+   "ecart_budget_pct": 1.0253846651269558,
+   "jugement_budget": "significatif_defavorable",
+   "ecart_prevision": 226999.23887059384,
+   "ecart_prevision_pct": 0.7799243834651024,
+   "jugement_prevision": "significatif_defavorable"
+  },
+  {
+   "code": "Variable",
+   "libelle": "Frais variables",
+   "reel": 1190810.66,
+   "budget": 805819.475,
+   "prevu": 914580.7699260475,
+   "ecart_budget": 384991.18499999994,
+   "ecart_budget_pct": 0.47776356484806964,
+   "jugement_budget": "significatif_defavorable",
+   "ecart_prevision": 276229.8900739524,
+   "ecart_prevision_pct": 0.30202897235231413,
+   "jugement_prevision": "significatif_defavorable"
+  },
+  {
+   "code": "Financement",
+   "libelle": "Financement",
+   "reel": 65323.24,
+   "budget": 108956.455,
+   "prevu": 128281.7592229385,
+   "ecart_budget": -43633.215000000004,
+   "ecart_budget_pct": -0.40046470858472777,
+   "jugement_budget": "significatif_favorable",
+   "ecart_prevision": -62958.51922293851,
+   "ecart_prevision_pct": -0.49078309811392634,
+   "jugement_prevision": "significatif_favorable"
+  },
+  {
+   "code": "Flux",
+   "libelle": "Flux net",
+   "reel": 721115.4199999999,
+   "budget": 119706.87500000007,
+   "prevu": 127618.29045674676,
+   "ecart_budget": 601408.5449999998,
+   "ecart_budget_pct": null,
+   "jugement_budget": "significatif_favorable",
+   "ecart_prevision": 593497.1295432532,
+   "ecart_prevision_pct": null,
+   "jugement_prevision": "significatif_favorable"
+  }
+ ],
+ "commentaire": {
+  "resume": "Les écarts significatifs pour la période 2026-10 sont principalement favorables pour les revenus et le flux net, mais défavorables pour les frais fixes et variables. Les causes des écarts sont principalement liées à des variations dans les revenus, les frais de production et les dépenses fixes.",
+  "points": [
+   "Revenus : écart vs budget de 1 205 039 $ (+93,4 %) et vs prévision de 1 033 768 $ (+70,7 %) sont significatifs et favorables. Les revenus ont été plus élevés que prévu et le budget.",
+   "Frais fixes : écart vs budget de 262 272 $ (+102,5 %) et vs prévision de 226 999 $ (+78,0 %) sont significatifs et défavorables. Les frais fixes ont été plus élevés que prévu et le budget.",
+   "Frais variables : écart vs budget de 384 991 $ (+47,8 %) et vs prévision de 276 230 $ (+30,2 %) sont significatifs et défavorables. Les frais variables ont été plus élevés que prévu et le budget.",
+   "Financement : écart vs budget de -43 633 $ (-40,0 %) et vs prévision de -62 959 $ (-49,1 %) sont significatifs et favorables. Les frais de financement ont été inférieurs aux prévisions et le budget.",
+   "Flux net : écart vs budget de 601 409 $ et vs prévision de 593 497 $ sont significatifs et favorables. Le flux net a été plus élevé que prévu et le budget."
+  ],
+  "origine": "llm"
+ },
+ "controles": [
+  {
+   "id": "C1",
+   "libelle": "Intégrité SQLite (quick_check)",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "ok"
+  },
+  {
+   "id": "C2",
+   "libelle": "Invariants de journal_general",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "6 invariants respectés"
+  },
+  {
+   "id": "C3",
+   "libelle": "Signe des montants (revenus > 0, charges < 0)",
+   "gravite": "reserve",
+   "ok": true,
+   "detail": "conforme"
+  },
+  {
+   "id": "C4",
+   "libelle": "Historique de 48 mois distincts (exigé par R8/SARIMAX)",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "48 mois"
+  },
+  {
+   "id": "C5",
+   "libelle": "Traçabilité : chaque transaction d'A2 est retrouvée en base",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "9 transaction(s) retrouvée(s)"
+  },
+  {
+   "id": "C6",
+   "libelle": "Conservation : transactions A2 = insérées + doublons",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "9 = 0 + 9"
+  },
+  {
+   "id": "C7",
+   "libelle": "Rejeu des soldes : ouverture + Σ mouvements = solde de clôture",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "1 relevé(s) rejoué(s)"
+  },
+  {
+   "id": "C8",
+   "libelle": "Recalcul indépendant du réel et du budget (SQL direct)",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "5 ligne(s) recalculée(s), concordance exacte"
+  },
+  {
+   "id": "C9",
+   "libelle": "Reproductibilité de la prévision SARIMAX (relance)",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "relance 1,461,533.70 vs 1,461,533.70"
+  },
+  {
+   "id": "C10",
+   "libelle": "Cohérence des prévisions A4 (finies, dans leur IC 95 %)",
+   "gravite": "reserve",
+   "ok": true,
+   "detail": "2 série(s) cohérente(s)"
+  },
+  {
+   "id": "C11",
+   "libelle": "Chaque chiffre du commentaire figure dans le tableau d'écarts",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "tous les chiffres sont sourcés"
+  }
+ ],
+ "relecture": {
+  "origine": "llm",
+  "notes": {
+   "classement": 5,
+   "doublons": 5,
+   "commentaire": 5,
+   "coherence": 5
+  },
+  "constats": [],
+  "rejetes": []
+ },
+ "empreinte": "3a7c6cb121a80e2e",
+ "alertes": [],
+ "decision_humaine": {
+  "decision": "approuver",
+  "commentaire": "approbation automatique (mode démo)"
+ },
+ "fichiers": [
+  "C:\\Users\\Marco\\Desktop\\Bibliothèque\\Projets AI\\Projet python\\Agents\\orchestrateur_usinage_v2\\demo_live\\donnees\\runs\\d085005_normal\\sorties\\2026-10\\Rapport_Tresorerie_2026-10.xlsx",
+  "C:\\Users\\Marco\\Desktop\\Bibliothèque\\Projets AI\\Projet python\\Agents\\orchestrateur_usinage_v2\\demo_live\\donnees\\runs\\d085005_normal\\sorties\\2026-10\\R0_2026-10.md"
+ ],
+ "gouvernance": {
+  "run_id": "ORCH-20261101T135011-f4c321",
+  "chargement": {
+   "stg": 9,
+   "insere": 0,
+   "doublon": 9,
+   "rejete": 0
+  },
+  "qualite": {
+   "execution_id": "DQ-20261101T135106-1215fa",
+   "score_global": 99.92,
+   "nb_regles": 20,
+   "nb_echecs": 2,
+   "nb_bloquants_echec": 0
+  }
+ },
+ "id": "20261101T085106506096"
+}

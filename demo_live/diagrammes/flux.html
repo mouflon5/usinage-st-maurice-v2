@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flux entre les agents</title><link rel="stylesheet" href="/diagrammes/commun.css"></head>
+<body>
+<header class="barre" id="barre"></header>
+<main>
+  <figure>
+    <div id="dessin"></div>
+    <figcaption>Les données avancent d’agent en agent ; chaque flèche porte ce qui est transmis. Les cinq dépôts du bas sont la mémoire partagée de ton architecture (page 4) : cliquez sur un agent pour voir ce qu’il lit et ce qu’il écrit. La pastille « LLM » marque les seuls endroits où un modèle de langage intervient : jamais pour calculer. Cliquez sur un agent pour voir ce qu’il a reçu, produit, et les rapports qui en dépendent.</figcaption>
+  </figure>
+  <div class="detail" id="detail"><span class="vide">Cliquez sur un agent du schéma.</span></div>
+  <div class="grille" id="metriques"></div>
+</main>
+<script src="/diagrammes/commun.js"></script>
+<script>
+const W = 1180, H0 = 478, X = c => 20 + c * 190, NW = 150, NH = 70, Y1 = 40, Y2 = 296, BY = 180, BH = 52;
+const POS = {
+  SOURCE: [0, Y1], A1: [1, Y1], A2: [2, Y1], A3: [3, Y1], A4: [4, Y1], A5: [5, Y1],
+  A6: [5, Y2], A8: [4, Y2], APPRO: [3, Y2], A7: [2, Y2], SORTIES: [1, Y2], TABLEAU: [0, Y2],
+};
+const ORDRE = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A8', 'APPRO', 'A7'];
+const LIENS = [['SOURCE', 'A1'], ['A1', 'A2'], ['A2', 'A3'], ['A3', 'A4'], ['A4', 'A5'], ['A5', 'A6'], ['A6', 'A8'], ['A8', 'APPRO'], ['APPRO', 'A7'], ['A7', 'SORTIES']];
+let vue = null, choisi = 'A3';
+
+const barre = $('#barre');
+const rejeu = barreRejeu(barre, 'Flux entre les agents', v => { vue = v; dessiner(); });
+
+function centre(id) { const [c, y] = POS[id]; return [X(c) + NW / 2, y + NH / 2]; }
+function bord(id, cote) { const [c, y] = POS[id]; const x = X(c); return { g: [x, y + NH / 2], d: [x + NW, y + NH / 2], h: [x + NW / 2, y], b: [x + NW / 2, y + NH] }[cote]; }
+
+function etiquetteLien(a, b, E) {
+  const g = n => E.ag[n], d = n => (E.ag[n] ? E.ag[n].detail : {}) || {};
+  if (a === 'SOURCE') { const f = E.demarrage && E.demarrage.detail.fichiers; return f ? f.length + ' relevé(s)' : ''; }
+  if (a === 'A1') { const f = E.demarrage && E.demarrage.detail.fichiers; return g('A1') && f ? f.length + ' fichier(s)' : ''; }
+  if (a === 'A2') return g('A2') ? nb(d('A2').nb_transactions) + ' transactions' : '';
+  if (a === 'A3') { const x = d('A3'); return g('A3') ? `${(x.classees || []).length} écrites · ${(x.a_classer || []).length} à classer · ${(x.doublons || []).length} doublons` : ''; }
+  if (a === 'A4') return g('A4') ? 'prévisions 6 mois' : '';
+  if (a === 'A5') return g('A5') ? (d('A5').ecarts || []).length + ' lignes d’écart' : '';
+  if (a === 'A6') { const c = (d('A6').resume || {}).controles || []; return g('A6') ? c.filter(x => x.ok).length + ' / ' + c.length + ' contrôles OK' : ''; }
+  if (a === 'A8') { const r = ((d('A8').resume || {}).relecture || {}).constats || []; return g('A8') ? r.filter(x => x.gravite === 'reserve').length + ' réserve(s)' : ''; }
+  if (a === 'APPRO') return E.appro ? (E.appro === 'approuver' ? 'approuvé' : 'rejeté') : (g('APPRO') ? 'approbation automatique' : '');
+  if (a === 'A7') { const f = d('A7').fichiers; return f ? f.length + ' fichier(s)' : ''; }
+  return '';
+}
+
+function etatNoeud(id, E) {
+  if (id === 'SOURCE') return E.demarrage ? 'ok' : 'att';
+  if (id === 'SORTIES') return E.ag.A7 && E.ag.A7.classe !== 'stop' ? 'ok' : (E.fin ? 'non' : 'att');
+  if (id === 'TABLEAU') return E.ag.A3 && E.ag.A3.classe !== 'stop' ? 'ok' : (E.fin ? 'non' : 'att');
+  if (id === 'APPRO') {
+    if (E.enAttenteAppro) return 'cours';
+    if (E.appro === 'rejeter') return 'stop';
+    if (E.ag.APPRO) return 'ok';
+  } else if (E.ag[id]) return E.ag[id].classe;
+  if (E.fin) return 'non';
+  const suivant = ORDRE.find(n => !E.ag[n] && !(n === 'APPRO' && E.ag.A7));
+  return E.vivant && suivant === id ? 'cours' : 'att';
+}
+
+function dessiner() {
+  const E = vue.etat, run = vue.run;
+  const svg = S('svg', { viewBox: `0 0 ${W} ${H0}`, role: 'img', 'aria-label': 'Flux de données entre les agents A1 à A8 et la base SQLite' });
+  svg.append(S('defs', {}, S('marker', { id: 'fl', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, S('path', { d: 'M0 0 L10 5 L0 10 z', fill: 'currentColor', opacity: .7 }))));
+  // mémoire partagée et traçabilité (page 4 de l'architecture)
+  const k = E.kpis.length ? E.kpis[E.kpis.length - 1] : null, k0 = E.kpis.length ? E.kpis[0] : null;
+  const dl = (x, y) => x == null || y == null ? '' : (x - y > 0 ? ' (+' + (x - y) + ')' : x - y < 0 ? ' (' + (x - y) + ')' : '');
+  const reg = E.ag.A3 && E.ag.A3.detail && E.ag.A3.detail.classees ? E.ag.A3.detail.classees.filter(x => x.methode === 'regle').length : null;
+  const nfich = E.demarrage && E.demarrage.detail.fichiers ? E.demarrage.detail.fichiers.length : null;
+  const STORES = [
+    ['Dépôt des sources', 'relevés bruts immuables', nfich != null ? `${nfich} relevé(s) ce passage` : '—'],
+    ['Grand livre des flux', 'SQLite · journal_general', k ? `${nb(k.nb_ecritures)} écritures${k0 ? dl(k.nb_ecritures, k0.nb_ecritures) : ''}` : '—'],
+    ['Référentiel de règles', 'mots-clés → catégories', reg != null ? `${reg} ligne(s) classée(s) par règle` : '—'],
+    ['Journal d’exécution', 'entrée · sortie · coût · durée', `${vue.evtsVus ? vue.evtsVus.length : 0} événement(s) · ${(vue.llm && vue.llm.appels) || 0} appel(s) LLM`],
+    ['Registre des exceptions', 'lignes « À classer »', k ? `${nb(k.a_classer)} en attente${k0 ? dl(k.a_classer, k0.a_classer) : ''}` : '—'],
+  ];
+  // accès des agents aux dépôts : [agent, dépôt, sens]
+  const ACCES = [['A1', 0, 'écrit'], ['A2', 0, 'lit'], ['A3', 1, 'écrit'], ['A3', 2, 'lit'], ['A3', 4, 'écrit'], ['A4', 1, 'lit'], ['A5', 1, 'lit'], ['A6', 1, 'lit'], ['A8', 1, 'lit'], ['A7', 1, 'lit'], ['TABLEAU', 1, 'lit']];
+  const TW = (W - 40) / 5, tx = i => 20 + i * TW;
+  svg.append(S('rect', { x: 14, y: BY - 22, width: W - 28, height: BH + 28, rx: 10, fill: 'none', stroke: 'var(--laiton)', 'stroke-dasharray': '4 3' }), S('text', { x: 24, y: BY - 8, class: 'att', style: 'font-size:11px;font-weight:700' }, 'MÉMOIRE PARTAGÉE — SQLite'));
+  STORES.forEach(([t, sub, val], i) => {
+    const g = S('g', { class: 'noeud' });
+    const utilise = ACCES.some(x => x[0] === choisi && x[1] === i);
+    g.append(S('rect', { class: 'cadre', x: tx(i) + 3, y: BY, width: TW - 6, height: BH, rx: 7, style: 'stroke:var(--laiton);stroke-width:' + (utilise ? 3 : 1.2) }),
+      S('text', { x: tx(i) + 12, y: BY + 17, style: 'font-weight:700;font-size:12px' }, t), S('text', { x: tx(i) + 12, y: BY + 31, class: 'att', style: 'font-size:10.5px' }, sub), S('text', { x: tx(i) + 12, y: BY + 45, style: 'font-size:11px;font-weight:600' }, val));
+    bulle(g, `<b>${t}</b><br>${sub}`);
+    svg.append(g);
+  });
+  const mes = ACCES.filter(x => x[0] === choisi);
+  mes.forEach(([id, st, sens], n) => {
+    const [c, y] = POS[id], cx = X(c) + NW / 2, haut = y === Y1;
+    const tcx = tx(st) + TW / 2, ya = haut ? y + NH : y, yb = haut ? BY : BY + BH, yh = haut ? 158 + n * 6 : 262 - n * 6;
+    const pts = Math.abs(cx - tcx) < 2 ? [[cx, ya], [tcx, yb]] : [[cx, ya], [cx, yh], [tcx, yh], [tcx, yb]];
+    const d = sens === 'écrit' ? pts : pts.slice().reverse();
+    svg.append(S('path', { d: 'M' + d.map(p => p.join(',')).join(' L'), class: 'base', 'marker-end': 'url(#fl)', style: 'stroke-width:2.4;stroke-dasharray:none;stroke:var(--laiton)' }),
+      S('text', { x: tcx + 8, y: haut ? yh - 4 : yb + 13, style: 'font-size:11px;font-weight:700', fill: 'var(--laiton)' }, `${choisi} ${sens}`));
+  });
+  // liens séquentiels
+  LIENS.forEach(([a, b]) => {
+    const A = POS[a], B = POS[b];
+    let p1, p2;
+    if (A[1] === B[1]) { const droite = A[0] < B[0]; p1 = bord(a, droite ? 'd' : 'g'); p2 = bord(b, droite ? 'g' : 'd'); }
+    else { p1 = bord(a, 'b'); p2 = bord(b, 'h'); }
+    const sa = etatNoeud(a, E), sb = etatNoeud(b, E);
+    const fini = ['ok', 'res'].includes(sa) && ['ok', 'res', 'stop'].includes(sb);
+    let cl = 'lien';
+    if (fini) cl += sb === 'res' ? ' res' : (sb === 'stop' ? ' stop' : ' fait');
+    else if (['ok', 'res'].includes(sa) && sb === 'cours') cl += ' actif';
+    const l = S('line', { x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1], class: cl, 'marker-end': 'url(#fl)' });
+    svg.append(l);
+    const lab = etiquetteLien(a, b, E);
+    if (lab) {
+      const mx = (p1[0] + p2[0]) / 2, haut = A[1] === Y1;
+      const parts = lab.split(' · ').length > 1 ? lab.split(' · ') : [lab];
+      parts.forEach((ln, i) => svg.append(S('text', { x: mx, y: (haut ? Y1 + NH + 16 : Y2 - 22) + i * 13, 'text-anchor': 'middle', style: 'font-size:11px;font-weight:600' }, ln)));
+    }
+  });
+  // indication de l'arbitrage
+  if (E.ag.A3 && E.ag.A3.statut === 'a_arbitrer') {
+    const [x, y] = [X(3), Y1 - 6];
+    svg.append(S('text', { x: x + NW / 2, y: y, 'text-anchor': 'middle', style: 'font-size:11px;font-weight:600', fill: 'var(--reserve)' }, '⚠ arbitrage humain : A8 relit puis la chaîne s’arrête'));
+  }
+  // boucle LLM Ops
+  const OPS = [['Trace', `${(vue.llm && vue.llm.appels) || 0} appel(s) LLM`], ['Observation', 'jetons · latence · erreurs'], ['Évaluation', 'jeu figé · juge LLM'], ['Diagnostic', 'où ça a rompu'], ['Porte', 'aucune bascule sans éval.'], ['Publication', 'invite · modèle · top-k']];
+  const OY = 388;
+  svg.append(S('rect', { x: 14, y: OY - 18, width: W - 28, height: 72, rx: 10, fill: 'none', stroke: 'var(--bleu)', 'stroke-dasharray': '4 3' }), S('text', { x: 24, y: OY - 4, class: 'att', style: 'font-size:11px;font-weight:700' }, 'BOUCLE D’AMÉLIORATION — LLM OPS (détail : onglet « 📈 Performance »)'));
+  OPS.forEach(([t, v], i) => { const x = 20 + i * 190; svg.append(S('rect', { class: 'cadre', x, y: OY + 4, width: 150, height: 40, rx: 7, fill: 'var(--surface)', stroke: 'var(--grille)' }), S('rect', { x, y: OY + 4, width: 150, height: 5, rx: 2.5, fill: 'var(--bleu)' }), S('text', { x: x + 10, y: OY + 25, style: 'font-weight:700;font-size:12px' }, `${i + 1}. ${t}`), S('text', { x: x + 10, y: OY + 38, class: 'att', style: 'font-size:10.5px' }, v)); if (i < 5) svg.append(S('line', { x1: x + 150, y1: OY + 24, x2: x + 190, y2: OY + 24, class: 'lien fait', 'marker-end': 'url(#fl)' })); });
+  // nœuds
+  Object.keys(POS).forEach(id => {
+    const [c, y] = POS[id], x = X(c), m = META[id], s = etatNoeud(id, E), a = E.ag[id];
+    const g = S('g', { class: 'noeud' + (choisi === id ? ' choisi' : ''), tabindex: 0, role: 'button', 'aria-label': `${id} ${m.nom} : ${LIB[s]}` });
+    g.append(S('rect', { class: 'cadre', x, y, width: NW, height: NH, rx: 8 }), S('rect', { class: 'bandeau s-' + s + (s === 'cours' || (id === 'APPRO' && E.enAttenteAppro) ? ' pouls' : ''), x, y, width: NW, height: 6, rx: 3 }));
+    const code = ['SOURCE', 'SORTIES', 'TABLEAU', 'APPRO'].includes(id) ? '' : id;
+    const COURT = { SOURCE: 'Relevés PDF', SORTIES: 'Rapports', TABLEAU: 'Tableau R0–R8', APPRO: 'Approbation' };
+    g.append(S('text', { x: x + 10, y: y + 27, style: 'font-weight:700;font-size:15px' }, code || COURT[id]));
+    if (code) g.append(S('text', { x: x + 10, y: y + 45, class: 'att' }, m.nom));
+    let etat = LIB[s];
+    if (id === 'APPRO' && E.enAttenteAppro) etat = '● attend votre décision';
+    else if (a && a.duree != null) etat = (s === 'res' ? '⚠ ' : s === 'stop' ? '✕ ' : '✓ ') + sec(a.duree);
+    g.append(S('text', { x: x + 10, y: y + 62, class: 'att', style: 'font-size:11px' }, etat));
+    if (m.llm && m.llm !== 'non') {
+      g.append(S('rect', { x: x + NW - 40, y: y + 12, width: 32, height: 16, rx: 8, fill: 'none', stroke: 'var(--bleu)' }), S('text', { x: x + NW - 24, y: y + 24, 'text-anchor': 'middle', style: 'font-size:10px;font-weight:700', fill: 'var(--bleu)' }, 'LLM'));
+    }
+    g.addEventListener('click', () => { choisi = id; dessiner(); });
+    g.addEventListener('keydown', e => { if (e.key === 'Enter') { choisi = id; dessiner(); } });
+    bulle(g, `<b>${m.nom}</b><br>${m.role}<br><i>LLM : ${m.llm}</i>`);
+    svg.append(g);
+  });
+  $('#dessin').replaceChildren(svg);
+  detail(E, run);
+  metriques(E, run);
+}
+
+function tableau(entetes, lignes, nums = []) {
+  if (!lignes.length) return H('div', { class: 'vide' }, 'Rien à afficher pour cette étape.');
+  return H('table', { class: 't' }, H('tr', {}, ...entetes.map((e, i) => H('th', { class: nums.includes(i) ? 'n' : '' }, e))),
+    ...lignes.map(l => H('tr', {}, ...l.map((c, i) => H('td', { class: nums.includes(i) ? 'n' : '' }, c == null ? '' : String(c))))));
+}
+
+function detail(E, run) {
+  const m = META[choisi], a = E.ag[choisi], d = (a && a.detail) || {}, box = $('#detail');
+  const s = etatNoeud(choisi, E);
+  const puce = H('span', { class: 'puce s-' + s, style: `background:var(--${{ ok: 'ok', res: 'reserve', stop: 'stop', cours: 'bleu', att: 'attente', non: 'grille' }[s]})` }, LIB[s]);
+  const moy = (vue.moyennes || {})[choisi];
+  const kids = [H('h2', {}, `${choisi.length === 2 ? choisi + ' · ' : ''}${m.nom} `, puce), H('div', {}, m.role)];
+  const meta = [`LLM : ${m.llm}`]; if (m.outil) meta.push('Outil : ' + m.outil); if (m.entrees) meta.push('Reçoit : ' + m.entrees); if (m.sorties) meta.push('Produit : ' + m.sorties);
+  kids.push(H('div', { class: 'att', style: 'margin:4px 0' }, meta.join('  ·  ')));
+  if (m.arret) kids.push(H('div', { class: 'att' }, 'Quand il s’arrête : ' + m.arret));
+  if (a && a.duree != null) kids.push(H('div', {}, `Durée de ce passage : ${sec(a.duree)}` + (moy ? ` — moyenne sur ${moy.n} passage(s) : ${sec(moy.moyenne)}` : '')));
+  if (a && a.message) kids.push(H('p', {}, a.message));
+  if (m.rapports && m.rapports.length) kids.push(H('div', { class: 'chips' }, H('b', {}, 'Rapports associés : '), ...m.rapports.map(r => H('span', {}, r))));
+  if (choisi === 'A2' && d.exemples) kids.push(tableau(['Date', 'Libellé', 'Montant'], d.exemples.map(x => [x.date, x.description, $$(x.montant)]), [2]));
+  if (choisi === 'A3') {
+    if ((d.classees || []).length) kids.push(H('b', {}, 'Lignes classées'), tableau(['Date', 'Libellé', 'Montant', 'Catégorie', 'Méthode'], d.classees.slice(0, 12).map(x => [x.date, sup(x.description, 48), $$(x.montant), x.categorie, x.methode]), [2]));
+    if ((d.a_classer || []).length) kids.push(H('b', {}, 'À classer (arbitrage humain)'), tableau(['Date', 'Libellé', 'Montant'], d.a_classer.map(x => [x.date, sup(x.description, 60), $$(x.montant)]), [2]));
+    if ((d.doublons || []).length) kids.push(H('b', {}, 'Doublons écartés'), tableau(['Date', 'Libellé', 'Montant', 'Origine'], d.doublons.map(x => [x.date, sup(x.description, 48), $$(x.montant), x.origine]), [2]));
+  }
+  if (choisi === 'A5' && d.ecarts) kids.push(tableau(['Ligne', 'Réel', 'Budget', 'Prévu'], d.ecarts.map(x => [x.libelle, $$(x.reel), $$(x.budget), $$(x.prevu)]), [1, 2, 3]));
+  if (choisi === 'A6' && d.resume && d.resume.controles) kids.push(tableau(['', 'Contrôle', 'Libellé', 'Gravité'], d.resume.controles.map(c => [c.ok ? '✓' : '✕', c.id, c.libelle, c.gravite])));
+  if (choisi === 'A8' && d.resume && d.resume.relecture) { const r = d.resume.relecture; kids.push(H('div', { class: 'att' }, 'Origine : ' + r.origine), tableau(['Réf.', 'Gravité', 'Constat'], (r.constats || []).map(c => [c.ref, c.gravite, c.texte || c.constat]))); }
+  if (choisi === 'A7' && d.fichiers) kids.push(H('div', { class: 'chips' }, ...d.fichiers.map(f => H('span', {}, '📄 ' + String(f).split(/[\\/]/).pop()))));
+  if (choisi === 'APPRO' && E.enAttenteAppro) kids.push(H('p', {}, 'Le passage attend votre décision dans la vue « Démo en direct ».'));
+  box.replaceChildren(...kids);
+}
+
+function metriques(E, run) {
+  const zone = $('#metriques'); zone.replaceChildren();
+  // 1. durées par agent
+  const lignes = ORDRE.filter(n => E.ag[n] && E.ag[n].duree != null && n !== 'APPRO');
+  const c1 = H('div', { class: 'carte' }, H('h3', {}, 'Durée par agent (barre) et moyenne des passages (trait)'));
+  if (!lignes.length) c1.append(H('div', { class: 'vide' }, 'Aucun agent terminé.'));
+  else {
+    const mx = Math.max(...lignes.map(n => Math.max(E.ag[n].duree, ((vue.moyennes || {})[n] || {}).moyenne || 0)), 0.05), w = 360, h = lignes.length * 24 + 8;
+    const sv = S('svg', { viewBox: `0 0 ${w + 90} ${h}`, role: 'img', 'aria-label': 'Durée de chaque agent comparée à sa moyenne' });
+    lignes.forEach((n, i) => {
+      const y = i * 24 + 4, d = E.ag[n].duree, mo = ((vue.moyennes || {})[n] || {}).moyenne;
+      sv.append(S('text', { x: 0, y: y + 14 }, n), S('rect', { x: 28, y: y + 2, width: Math.max(2, d / mx * w), height: 14, rx: 3, fill: 'var(--bleu)' }));
+      if (mo != null) sv.append(S('line', { x1: 28 + mo / mx * w, x2: 28 + mo / mx * w, y1: y, y2: y + 18, stroke: 'var(--texte)', 'stroke-width': 2 }));
+      sv.append(S('text', { x: 34 + Math.max(2, d / mx * w), y: y + 14, class: 'att' }, sec(d)));
+    });
+    c1.append(sv);
+    const tot = lignes.reduce((s, n) => s + E.ag[n].duree, 0);
+    const lent = lignes.reduce((a, b) => E.ag[a].duree > E.ag[b].duree ? a : b);
+    c1.append(H('div', { class: 'att' }, `Total des agents : ${sec(tot)} — le plus long : ${lent} (${Math.round(E.ag[lent].duree / tot * 100)} %).`));
+  }
+  zone.append(c1);
+  // 2. effet sur les indicateurs
+  const c2 = H('div', { class: 'carte' }, H('h3', {}, 'Effet sur le tableau de trésorerie'));
+  if (E.kpis.length < 2) c2.append(H('div', { class: 'vide' }, 'Disponible après A3.'));
+  else {
+    const a = E.kpis[0], b = E.kpis[E.kpis.length - 1];
+    const L = [['solde_actuel', 'Solde actuel', 1], ['creux', 'Creux 13 sem.', 1], ['flux_net_2026', 'Flux net 2026', 1], ['ecart_budget_annee', 'Écart vs budget', 1], ['coussin_requis', 'Coussin requis', 1], ['nb_ecritures', 'Écritures au journal', 0], ['a_classer', 'Lignes à classer', 0]];
+    c2.append(tableau(['Indicateur', 'Avant', 'Après', 'Variation'], L.map(([k, l, ar]) => [l, ar ? $$(a[k]) : nb(a[k]), ar ? $$(b[k]) : nb(b[k]), ar ? $$(b[k] - a[k], 1) : (b[k] - a[k] > 0 ? '+' : '') + (b[k] - a[k])]), [1, 2, 3]));
+  }
+  zone.append(c2);
+  // 3. issues
+  const c3 = H('div', { class: 'carte' }, H('h3', {}, 'Issue des passages de la démo'));
+  const iss = Object.entries(vue.issues || {}), tot = iss.reduce((s, [, n]) => s + n, 0);
+  if (!tot) c3.append(H('div', { class: 'vide' }, 'Aucun passage terminé.'));
+  else {
+    const w = 360, sv = S('svg', { viewBox: `0 0 ${w} 22`, role: 'img', 'aria-label': 'Répartition des issues' });
+    let x = 0;
+    iss.sort((p, q) => q[1] - p[1]).forEach(([k, n]) => { const lw = n / tot * w; sv.append(S('rect', { x: x + 1, y: 2, width: Math.max(2, lw - 2), height: 18, rx: 3, class: 's-' + classe(k) })); x += lw; });
+    c3.append(sv, tableau(['', 'Issue', 'Passages'], iss.map(([k, n]) => [{ ok: '✓', res: '⚠', stop: '✕' }[classe(k)], k, n]), [2]));
+  }
+  zone.append(c3);
+  // 4. rapports produits
+  const c4 = H('div', { class: 'carte' }, H('h3', {}, 'Rapports de ce passage'));
+  const f = (E.fin && E.fin.detail && E.fin.detail.fichiers) || [];
+  c4.append(f.length ? H('div', { class: 'chips' }, ...f.map(x => H('span', {}, '📄 ' + x.split(/[\\/]/).pop()))) : H('div', { class: 'vide' }, E.fin ? 'Aucun rapport : la chaîne s’est arrêtée avant A7.' : 'Produits par A7 en fin de chaîne.'));
+  c4.append(H('div', { class: 'att' }, 'Ouvrez-les dans la vue « Rapports ».'));
+  zone.append(c4);
+}
+</script></body></html>

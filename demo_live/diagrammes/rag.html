@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Système RAG</title><link rel="stylesheet" href="/diagrammes/commun.css">
+<style>.defil{overflow-x:auto}.defil svg{min-width:1100px}.ligne{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.ligne input[type=text]{flex:1;min-width:260px}
+.rep{white-space:pre-wrap;margin:6px 0}.sel{cursor:pointer}.sel:hover{background:var(--surface2)}</style></head>
+<body>
+<header class="barre">
+  <h1>Système RAG</h1>
+  <div class="ligne" style="flex:1">
+    <input type="text" id="q" placeholder="Posez une question : « Quel est le solde actuel ? », « Que fait A6 ? »…" aria-label="Question">
+    <button class="principal" id="poser">Poser la question</button>
+    <button id="eval" title="Rejoue le jeu d’évaluation (36 questions)">Évaluer</button>
+    <button id="rebuild" title="Reconstruit l’index à partir des sources">Reconstruire l’index</button>
+    <span class="att" id="statut"></span>
+  </div>
+</header>
+<main>
+  <figure>
+    <div class="defil" id="dessin"></div>
+    <figcaption>Chemin d’une question : les chiffres viennent des outils qui lisent la base (jamais d’un texte), les explications de la recherche BM25 sur cinq sources indexées. Un passage n’est gardé que s’il couvre assez la question ; un texte suspect est neutralisé ; sans preuve, le système refuse. Le chemin de la dernière question est surligné.</figcaption>
+  </figure>
+  <div class="detail" id="reponse"><span class="vide">Posez une question pour voir la réponse, ses sources et son chemin dans le diagramme.</span></div>
+  <div class="grille" id="metriques"></div>
+</main>
+<script src="/diagrammes/commun.js"></script>
+<script>
+let D = null, sel = null, choisi = null;
+const W = 1160;
+const q = $('#q'), statut = $('#statut');
+async function recharger() { D = await api('/api/diag/rag'); if (!sel && D.requetes.length) sel = D.requetes[0].id; dessiner(); }
+async function action(url, corps, msg) {
+  statut.textContent = msg + '…';
+  try { const r = await api(url, corps || {}); statut.textContent = r.ok ? 'Terminé.' : (r.erreur || 'Échec'); return r; } catch (e) { statut.textContent = 'Erreur : ' + e; }
+}
+$('#poser').onclick = async () => { const t = q.value.trim(); if (!t) return; const r = await action('/api/diag/rag/question', { question: t }, 'Recherche'); await recharger(); if (D.requetes.length) { sel = D.requetes[0].id; dessiner(); } };
+q.addEventListener('keydown', e => { if (e.key === 'Enter') $('#poser').click(); });
+$('#eval').onclick = async () => { const r = await action('/api/diag/rag/evaluer', {}, 'Évaluation en cours'); if (r && r.ok) statut.textContent = `${r.reussies} / ${r.n} réussies.`; recharger(); };
+$('#rebuild').onclick = async () => { await action('/api/diag/rag/reconstruire', {}, 'Reconstruction de l’index'); recharger(); };
+recharger(); setInterval(recharger, 5000);
+
+const pct = (a, b) => b ? Math.round(a / b * 100) + ' %' : '—';
+const quant = (v, p) => { if (!v.length) return null; const s = [...v].sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.floor(s.length * p))]; };
+function tableau(entetes, lignes, nums = []) {
+  return H('table', { class: 't' }, H('tr', {}, ...entetes.map((e, i) => H('th', { class: nums.includes(i) ? 'n' : '' }, e))), ...lignes.map(l => H('tr', {}, ...l.map((c, i) => H('td', { class: nums.includes(i) ? 'n' : '' }, c == null ? '' : c)))));
+}
+/* ---------- architecture (page 6 du drawio) : chaque brique porte son état dans la démo ---------- */
+const ETAT = { oui: ['✓ démo', 'var(--ok)'], part: ['◐ partiel', 'var(--reserve)'], cible: ['○ cible', 'var(--attente)'] };
+// x, y, w : géométrie ; e : état dans la démo ; chemin : étape parcourue par une question (clé dans parcours()) ; cle : valeur observée
+const B = {
+  cp1: { b: 1, x: 20, y: 34, w: 214, t: ['Politique et procédures', 'seuils, matérialité, plan de classement'], e: 'cible', d: 'Politique de trésorerie, seuils et matérialité, procédure de fin de mois, plan de classement commenté. Dans la démo, le plan de classement et les paramètres sont indexés depuis la base.' },
+  cp2: { b: 1, x: 242, y: 34, w: 214, t: ['Financement', 'marge, BDC, crédit-bail'], e: 'cible', d: 'Convention de marge Desjardins, prêts BDC, crédit-bail : clauses, limites, engagements, échéanciers. Aucun contrat réel dans la démo.' },
+  cp3: { b: 1, x: 464, y: 34, w: 214, t: ['Clients et fournisseurs', 'contrats, termes de paiement'], e: 'cible', d: 'Contrats et bons de commande : termes de paiement, retenues, devises, pénalités. Non indexés dans la démo (données synthétiques).' },
+  cp4: { b: 1, x: 686, y: 34, w: 214, t: ['Historique du rapport', 'R0 approuvés, notes'], e: 'part', d: 'R0 antérieurs approuvés, notes d’analyse. Démo : les rapports R0 produits par A7 sont indexés.' },
+  cp5: { b: 1, x: 908, y: 34, w: 232, t: ['Décisions et arbitrages', 'registre des exceptions'], e: 'part', d: 'Registre des exceptions rédigé, courriels de décision, comptes rendus. Démo : traces d’agents et passages de la démo (lignes à classer, réserves).' },
+  hc: { b: 1, x: 20, y: 98, w: 1120, h: 26, t: ['Hors corpus : relevés bancaires et grand livre → lus en SQL par les outils de chiffres, jamais par similarité', ''], e: 'oui', plat: true, cle: 'faits', d: 'Les montants viennent de SQLite (tableau reconstruit depuis tresorerie.db) : aucun chiffre ne sort d’un passage de texte.' },
+  i1: { b: 2, x: 20, y: 188, w: 214, t: ['1. Collecte', 'dépôt, empreinte, droits'], e: 'part', d: 'Cible : dépôt versionné, empreinte SHA-256, droits de lecture, propriétaire obligatoire. Démo : lecture des fichiers locaux du projet (README, rapports, traces), sans empreinte.' },
+  i2: { b: 2, x: 242, y: 188, w: 214, t: ['2. Extraction', 'pdfplumber · OCR'], e: 'part', d: 'Cible : pdfplumber puis OCR, titres/tableaux/pages conservés. Démo : texte, Markdown, JSON et base SQLite.' },
+  i3: { b: 2, x: 464, y: 188, w: 214, t: ['3. Découpage', '≈800 jetons · titre reporté'], e: 'oui', d: 'Passages de taille bornée (≈900 caractères dans la démo) avec le titre de section reporté dans chaque passage.' },
+  i4: { b: 2, x: 686, y: 188, w: 214, t: ['4. Métadonnées', 'entité · version · date'], e: 'part', d: 'Cible : entité, type, version, date d’effet, date de fin, confidentialité obligatoires. Démo : type, source et titre.' },
+  i5: { b: 2, x: 908, y: 188, w: 232, t: ['5. Plongements', 'modèle local multilingue'], e: 'cible', d: 'Cible : modèle multilingue local, dimension et version stockées avec le vecteur. Non implémenté : la démo n’utilise que la recherche lexicale.' },
+  q : { b: 3, x: 20, y: 332, w: 110, t: ['Question', 'A3 · A5 · A7'], e: 'oui', ch: 'q', d: 'La question du contrôleur. Dans la cible, c’est un appel d’outil d’un agent ; dans la démo, la question est tapée dans l’assistant ou ici.' },
+  nor: { b: 3, x: 144, y: 332, w: 112, t: ['Analyse', 'jetons · intention'], e: 'oui', ch: 'nor', d: 'Accents retirés, jetons (codes comme « a5 » gardés), mois, lignes de liquidité, détection des questions de définition.' },
+  fil: { b: 3, x: 270, y: 332, w: 140, t: ['Filtres durs', 'entité · date · droits'], e: 'cible', d: 'Cible : entité concernée, date d’effet ≤ date du rapport, droits de lecture, appliqués avant toute similarité. Non implémenté.' },
+  lex: { b: 3, x: 426, y: 304, w: 160, t: ['Lexical FTS5 / BM25', 'clauses · noms · montants'], e: 'oui', ch: 'lex', cle: 'passages', d: 'Recherche plein texte BM25 (SQLite FTS5), accents ignorés, titres pondérés. Retourne les passages avec score et couverture.' },
+  vec: { b: 3, x: 426, y: 364, w: 160, t: ['Vectoriel sqlite-vec', 'synonymes métier'], e: 'cible', d: 'Cible : recherche par plongements pour les formulations différentes. Non implémenté : limite connue (ex. « mot de passe de la base »).' },
+  rrf: { b: 3, x: 602, y: 332, w: 100, t: ['Fusion RRF', 'liste unique'], e: 'cible', d: 'Fusion des deux listes (lexicale + vectorielle) en une seule. Sans vecteurs, la démo n’a qu’une liste.' },
+  rcl: { b: 3, x: 716, y: 332, w: 130, t: ['Reclassement', 'cross-encoder'], e: 'part', ch: 'rcl', cle: 'retenus', d: 'Cible : cross-encoder. Démo : filtre de couverture (part des mots de la question présents dans le passage ; seuil 0,5 / 0,8).' },
+  top: { b: 3, x: 860, y: 332, w: 120, t: ['Top-k', 'document · version'], e: 'part', ch: 'top', d: 'Cible : 6 passages avec document, version, page. Démo : 5 passages avec type, source et titre.' },
+  abs: { b: 3, x: 996, y: 304, w: 144, t: ['Abstention', 'sans source : refus'], e: 'oui', ch: 'abs', d: 'Si aucun passage ni chiffre n’est assez pertinent, le système refuse plutôt que d’inventer. Cible : ouvrir en plus une exception dans la file du contrôleur.' },
+  neu: { b: 3, x: 996, y: 364, w: 144, t: ['Neutralisation', 'consignes cachées'], e: 'oui', ch: 'neu', cle: 'neutralises', d: 'Ajout de la démo : les consignes cachées dans un document (« ignore tes instructions… ») sont remplacées par « consigne ignorée ».' },
+  an1: { b: 4, x: 20, y: 508, w: 214, t: ['Citation obligatoire', 'document · version · page'], e: 'part', ch: 'cit', d: 'Cible : toute phrase du R0 tirée du corpus porte document, version, page ; A6 rejette une affirmation non citée. Démo : citations numérotées [1], [2]. En mode réel, un nombre absent des sources est rejeté.' },
+  an2: { b: 4, x: 242, y: 508, w: 214, t: ['Traçabilité', 'table des requêtes'], e: 'oui', d: 'Chaque question est journalisée : faits, passages, scores, couverture, durées, mode (table rag_requetes de la base de démo).' },
+  an3: { b: 4, x: 464, y: 508, w: 214, t: ['Jeu d’évaluation', '36 questions (cible : 40)'], e: 'oui', d: 'Questions de règle, paramètre, documentation, chiffre, refus et injection avec réponse de référence. Bouton « Évaluer ».' },
+  an4: { b: 4, x: 686, y: 508, w: 214, t: ['Porte de qualité', 'pas de bascule sans éval.'], e: 'part', d: 'Cible : aucun changement d’index, de découpage ou de top-k sans réévaluation réussie. Démo : l’évaluation est disponible, mais ne bloque rien (voir Performance → Porte).' },
+  an5: { b: 4, x: 908, y: 508, w: 232, t: ['Confidentialité', 'index local'], e: 'oui', d: 'Index et recherche locaux (SQLite). En mode simulé rien ne sort ; en mode réel, les extraits envoyés au LLM partent vers l’API : à cadrer pour les contrats.' },
+};
+const BLOCS = { 1: ['1 · Corpus — ce qui est indexé, et rien d’autre', 10, 148], 2: ['2 · Chaîne d’indexation — hors ligne, rejouable', 164, 108], 3: ['3 · Récupération — hybride, filtrée, reclassée', 280, 190], 4: ['4 · Ancrage, traçabilité et évaluation', 478, 104] };
+const LIENS = [['q', 'nor'], ['nor', 'fil'], ['fil', 'lex'], ['fil', 'vec'], ['lex', 'rrf'], ['vec', 'rrf'], ['rrf', 'rcl'], ['rcl', 'top'], ['top', 'abs']];
+const HB = 46;
+const hbox = n => n.h || HB;
+function chemin(a, b) { const A = B[a], C = B[b], x1 = A.x + A.w, y1 = A.y + hbox(A) / 2, x2 = C.x, y2 = C.y + hbox(C) / 2, mx = (x1 + x2) / 2; return `M${x1},${y1} L${mx},${y1} L${mx},${y2} L${x2},${y2}`; }
+/* étapes parcourues par la dernière question : seules les briques de la démo s'allument */
+function parcours(r) {
+  if (!r) return new Set();
+  const t = r.trace, s = new Set(['q', 'nor', 'lex', 'hc']);
+  if (!(t.faits || []).length) s.delete('hc');
+  if ((t.passages || []).length) s.add('rcl');
+  if ((t.passages || []).some(p => p.retenu)) s.add('top');
+  if (t.neutralises) s.add('neu');
+  if (r.refus) s.add('abs'); else s.add('cit');
+  return s;
+}
+function dessiner() {
+  if (!D) return;
+  const r = D.requetes.find(x => x.id === sel) || null, pc = parcours(r), H_ = 592;
+  const svg = S('svg', { viewBox: `0 0 1160 ${H_}`, role: 'img', 'aria-label': 'Architecture du RAG en quatre blocs : corpus, indexation, récupération, ancrage ; chaque brique indique si elle est implémentée dans la démo' });
+  svg.append(S('defs', {}, S('marker', { id: 'fl', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, S('path', { d: 'M0 0 L10 5 L0 10 z', fill: 'currentColor', opacity: .7 }))));
+  Object.values(BLOCS).forEach(([t, y, h]) => svg.append(S('rect', { x: 8, y, width: 1144, height: h, rx: 10, fill: 'var(--surface2)', opacity: .55, stroke: 'var(--grille)' }), S('text', { x: 20, y: y + 17, style: 'font-weight:700;font-size:12.5px' }, t)));
+  LIENS.forEach(([a, b]) => { const on = r && pc.has(a) && pc.has(b) || (r && pc.has(a) && pc.has(b)); const brancheVide = ['fil', 'vec', 'rrf'].includes(a) || ['fil', 'vec', 'rrf'].includes(b); svg.append(S('path', { d: chemin(a, b), class: 'lien' + (on ? ' fait' : ''), style: (on ? 'stroke:var(--bleu);' : '') + (brancheVide ? 'opacity:.5' : ''), 'marker-end': 'url(#fl)' })); });
+  // lien index (bloc 2) → recherche lexicale
+  svg.append(S('line', { x1: 506, y1: 250, x2: 506, y2: 304, class: 'base', 'marker-end': 'url(#fl)' }), S('text', { x: 514, y: 282, class: 'att', style: 'font-size:10.5px' }, 'interroge l’index'));
+  Object.entries(B).forEach(([id, n]) => {
+    const on = pc.has(id), [lib, col] = ETAT[n.e], h = hbox(n);
+    const g = S('g', { class: 'noeud' + (choisi === id ? ' choisi' : ''), tabindex: 0, role: 'button', 'aria-label': `${n.t[0]} — ${lib}` });
+    g.append(S('rect', { class: 'cadre', x: n.x, y: n.y, width: n.w, height: h, rx: n.plat ? 6 : 9, style: (on ? 'stroke:var(--bleu);stroke-width:2.6;' : '') + (n.e === 'cible' ? 'stroke-dasharray:4 3;' : '') }), S('rect', { class: 'bandeau', x: n.x, y: n.y, width: 5, height: h, rx: 2.5, style: `fill:${on ? 'var(--bleu)' : col}` }));
+    if (n.plat) { g.append(S('text', { x: n.x + 14, y: n.y + 17, style: 'font-size:11.5px' }, n.t[0])); if (r && n.cle) g.append(S('text', { x: n.x + n.w - 8, y: n.y + 17, 'text-anchor': 'end', style: 'font-size:11px;font-weight:700', fill: 'var(--bleu)' }, (r.trace.faits || []).length + ' fait(s) utilisé(s)')); }
+    else {
+      g.append(S('text', { x: n.x + 13, y: n.y + 19, style: 'font-weight:600;font-size:12px' }, sup(n.t[0], Math.floor(n.w / 7.2))), S('text', { x: n.x + 13, y: n.y + 34, class: 'att', style: 'font-size:10.5px' }, sup(n.t[1], Math.floor(n.w / 6)))); 
+      g.append(S('text', { x: n.x + n.w - 6, y: n.y + h + 12, 'text-anchor': 'end', style: 'font-size:10px;font-weight:700', fill: n.e === 'cible' ? 'var(--attenue)' : (n.e === 'part' ? 'var(--texte)' : 'var(--texte)') }, lib));
+    }
+    if (r && n.cle && !n.plat) {
+      const t = r.trace, v = { faits: (t.faits || []).length + ' fait(s)', passages: (t.passages || []).length + ' passage(s)', retenus: (t.passages || []).filter(p => p.retenu).length + ' retenu(s)', neutralises: t.neutralises + ' neutralisé(s)' }[n.cle];
+      g.append(S('text', { x: n.x + 13, y: n.y + h + 12, style: 'font-size:10.5px;font-weight:700', fill: 'var(--bleu)' }, v));
+    }
+    g.addEventListener('click', () => { choisi = id; dessiner(); });
+    g.addEventListener('keydown', e => { if (e.key === 'Enter') { choisi = id; dessiner(); } });
+    bulle(g, `<b>${n.t[0]}</b> — ${lib}<br>${n.d}`);
+    svg.append(g);
+  });
+  // corpus réel de la démo
+  const par = (D.index && D.index.par_type) || {}, types = Object.keys(par);
+  svg.append(S('text', { x: 20, y: 142, class: 'att', style: 'font-size:10.5px' }, 'Index actuel : ' + (types.length ? types.map(t => `${sup(t, 22)} ${par[t]}`).join(' · ') : 'absent')), S('text', { x: 1140, y: 142, 'text-anchor': 'end', class: 'att', style: 'font-size:10.5px' }, types.length ? `${nb(D.index.passages)} passages · ${D.index.construit}` : ''));
+  $('#dessin').replaceChildren(svg);
+  reponse(r); metriques();
+}
+function ecart() {
+  const l = Object.entries(B).filter(([, n]) => n.e !== 'oui').map(([id, n]) => [n.e === 'cible' ? '○ cible' : '◐ partiel', n.t[0], sup(n.d, 120)]);
+  return carte('Écart démo ↔ architecture cible (feuille de route du RAG)', tableau(['État', 'Brique', 'Ce qui manque ou diffère'], l), H('div', { class: 'note' }, `${Object.values(B).filter(n => n.e === 'oui').length} briques implémentées, ${Object.values(B).filter(n => n.e === 'part').length} partielles, ${Object.values(B).filter(n => n.e === 'cible').length} à construire.`));
+}
+function gras(t) {
+  const d = H('div', { class: 'rep' });
+  String(t).replace(/\\\$/g, '$').split(/(\*\*[^*]+\*\*)/).forEach(p => d.append(/^\*\*.+\*\*$/.test(p) ? H('b', {}, p.slice(2, -2)) : p.replace(/_(?=\()|(?<=\))_/g, '').replace(/\*\*/g, '')));
+  return d;
+}
+function reponse(r) {
+  const b = $('#reponse'); b.replaceChildren();
+  if (choisi) { const n = B[choisi]; b.replaceChildren(H('h2', {}, n.t[0], ' ', H('span', { class: 'puce', style: `background:${ETAT[n.e][1]};${n.e === 'cible' ? 'color:var(--texte)' : ''}` }, ETAT[n.e][0])), H('div', {}, n.d), H('div', { class: 'att', style: 'margin-top:6px' }, 'Cliquez sur un autre bloc, ou posez une question.')); if (!r) return; b.append(H('hr')); }
+  if (!r) { if (!choisi) b.replaceChildren(H('span', { class: 'vide' }, 'Posez une question pour voir la réponse et son chemin.')); return; }
+  const t = r.trace;
+  b.append(H('div', { class: 'att' }, `Question : ${r.question}  ·  ${r.ts || ''}`),
+    gras(r.reponse),
+    H('div', { class: 'chips' }, H('span', {}, 'mode : ' + r.mode), H('span', {}, (t.t_total_ms ?? '—') + ' ms au total'), H('span', {}, 'faits : ' + (t.t_faits_ms ?? '—') + ' ms'), H('span', {}, 'recherche : ' + (t.t_recherche_ms ?? '—') + ' ms'), r.refus ? H('span', {}, '⚠ refus') : null),
+    (t.passages || []).length ? tableau(['', 'Passage', 'Type', 'Score', 'Couverture'], t.passages.map(p => [p.retenu ? '✓ retenu' : '· écarté', sup(p.titre, 60), p.type, p.score, p.couverture]), [3, 4]) : H('div', { class: 'vide' }, 'Aucun passage trouvé.'));
+}
+function carte(titre, ...contenu) { return H('div', { class: 'carte' }, H('h3', {}, titre), ...contenu); }
+function metriques() {
+  const z = $('#metriques'); z.replaceChildren();
+  const R = D.requetes, n = R.length, ref = R.filter(x => x.refus).length, lat = R.map(x => x.trace.t_total_ms).filter(v => v != null);
+  // 1. trafic
+  const modes = {}; R.forEach(x => modes[x.mode] = (modes[x.mode] || 0) + 1);
+  z.append(carte('Questions posées (40 dernières)', n ? H('div', { class: 'k' },
+    H('div', {}, H('b', {}, String(n)), H('small', {}, 'questions')),
+    H('div', {}, H('b', {}, pct(n - ref, n)), H('small', {}, 'répondues')),
+    H('div', {}, H('b', {}, pct(ref, n)), H('small', {}, 'refus')),
+    H('div', {}, H('b', {}, pct(R.filter(x => x.nb_faits > 0).length, n)), H('small', {}, 'appuyées sur un chiffre')),
+    H('div', {}, H('b', {}, pct(R.filter(x => x.trace.neutralises > 0).length, n)), H('small', {}, 'avec texte neutralisé'))) : H('div', { class: 'vide' }, 'Aucune question journalisée.'),
+    n ? H('div', { class: 'att' }, 'Modes : ' + Object.entries(modes).map(([k, v]) => `${k} ${v}`).join(' · ')) : null));
+  // 2. latence
+  const c2 = carte('Latence par étape (ms)');
+  if (!lat.length) c2.append(H('div', { class: 'vide' }, 'Aucune mesure.'));
+  else {
+    const L = [['Outils de chiffres', R.map(x => x.trace.t_faits_ms)], ['Recherche BM25', R.map(x => x.trace.t_recherche_ms)], ['Total', lat]].map(([n, v]) => [n, v.filter(a => a != null)]);
+    c2.append(tableau(['Étape', 'Médiane', 'p95', 'Max'], L.map(([n, v]) => [n, quant(v, .5), quant(v, .95), Math.max(...v)]), [1, 2, 3]));
+    const mx = Math.max(...lat, 1), w = 300, h = Math.min(lat.length, 40) * 7 + 6, sv = S('svg', { viewBox: `0 0 ${w} ${h}`, role: 'img', 'aria-label': 'Latence totale des dernières questions' });
+    [...lat].reverse().slice(-40).forEach((v, i) => sv.append(S('rect', { x: 2, y: 2 + i * 7, width: Math.max(2, v / mx * (w - 40)), height: 5, rx: 2, fill: 'var(--bleu)' })));
+    c2.append(sv);
+  }
+  z.append(c2);
+  // 3. évaluation
+  const ev = D.eval, c3 = carte('Qualité sur le jeu d’évaluation');
+  if (!ev) c3.append(H('div', { class: 'vide' }, 'Pas encore d’évaluation : cliquez sur « Évaluer ».'));
+  else {
+    const L = ev.lignes, ok = L.filter(x => x.ok).length;
+    const genres = {}; L.forEach(x => { (genres[x.genre] = genres[x.genre] || []).push(x); });
+    const rangs = L.filter(x => x.rang != null && x.rang > 0), h1 = rangs.filter(x => x.rang === 1).length, mrr = rangs.length ? rangs.reduce((s, x) => s + 1 / x.rang, 0) / rangs.length : null;
+    c3.append(H('div', { class: 'k' }, H('div', {}, H('b', {}, `${ok} / ${L.length}`), H('small', {}, 'questions réussies')), H('div', {}, H('b', {}, pct(h1, rangs.length)), H('small', {}, 'bon passage en 1er')), H('div', {}, H('b', {}, mrr == null ? '—' : mrr.toFixed(2).replace('.', ',')), H('small', {}, 'MRR'))));
+    c3.append(tableau(['Type de question', 'Réussies', 'Taux', 'Médiane ms'], Object.entries(genres).map(([g, v]) => [(v.every(x => x.ok) ? '✓ ' : '⚠ ') + g, `${v.filter(x => x.ok).length} / ${v.length}`, pct(v.filter(x => x.ok).length, v.length), quant(v.map(x => x.ms || 0), .5)]), [1, 2, 3]));
+    const rates = Object.entries(genres).map(([g, v]) => v.filter(x => x.ok).length / v.length), w = 300;
+    const ko = L.filter(x => !x.ok);
+    if (ko.length) c3.append(H('div', { style: 'margin-top:6px' }, H('b', {}, 'À améliorer'), ...ko.map(x => H('div', { class: 'att' }, `• [${x.genre}] ${sup(x.question, 70)} — attendu : ${sup(String(x.attendu), 40)}`))));
+  }
+  z.append(c3);
+  // 4. composition de l'index
+  const c4 = carte('Sources indexées'), par = (D.index && D.index.par_type) || {}, tot = Object.values(par).reduce((a, b) => a + b, 0);
+  if (!tot) c4.append(H('div', { class: 'vide' }, 'Index vide.'));
+  else {
+    const mx = Math.max(...Object.values(par)), w = 300, es = Object.entries(par).sort((a, b) => b[1] - a[1]);
+    const sv = S('svg', { viewBox: `0 0 ${w + 130} ${es.length * 24}`, role: 'img', 'aria-label': 'Passages par type de source' });
+    es.forEach(([t, v], i) => sv.append(S('text', { x: 0, y: i * 24 + 15 }, sup(t, 18)), S('rect', { x: 120, y: i * 24 + 3, width: Math.max(2, v / mx * w), height: 14, rx: 3, fill: 'var(--sarcelle)' }), S('text', { x: 126 + v / mx * w, y: i * 24 + 15, class: 'att' }, v)));
+    c4.append(sv, H('div', { class: 'att' }, `${nb(tot)} passages au total. Sources : documentation, rapports R0, traces d’agents, passages de la démo, banc d’essai.`));
+  }
+  z.append(c4);
+  // 5. historique
+  const c5 = carte('Dernières questions (cliquer pour rejouer le chemin)');
+  c5.append(R.length ? H('table', { class: 't' }, H('tr', {}, ...['Heure', 'Question', 'Mode', 'ms'].map((e, i) => H('th', { class: i === 3 ? 'n' : '' }, e))),
+    ...R.slice(0, 10).map(x => H('tr', { class: 'sel', onclick: () => { sel = x.id; choisi = null; dessiner(); } },
+      ...[(x.ts || '').slice(11, 19), sup(x.question, 46), x.refus ? '⚠ refus' : x.mode, x.trace.t_total_ms].map((c, i) => H('td', { class: i === 3 ? 'n' : '' }, c == null ? '' : String(c)))))) : H('div', { class: 'vide' }, '—'));
+  z.append(c5);
+  z.append(ecart());
+}
+</script></body></html>

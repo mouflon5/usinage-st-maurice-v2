@@ -1,0 +1,22 @@
+colorama>=0.4.6
+langchain-anthropic>=0.3.0
+langchain-ollama>=0.3.0   # modèles locaux gratuits via Ollama
+langgraph-cli[inmem]>=0.1.55
+langgraph>=0.2.0
+numpy>=1.26
+openpyxl>=3.1.0
+pandas>=2.2
+pdfplumber>=0.11.0
+pydantic>=2.0
+python-dateutil>=2.9.0
+python-dotenv>=1.0.0
+reportlab>=4.2.0
+statsmodels>=0.14
+streamlit>=1.37
+typing_extensions>=4.9.0
+plotly>=5.18   # graphiques du tableau sans Internet (démo hors ligne)
+scipy>=1.11    # vue « Prix des métaux » (paquet prevision_metaux)
+arch>=7.0      # GARCH du paquet prevision_metaux
+altair>=5.0    # graphiques du banc d'essai
+# Les modèles de la vue « Prix des métaux » (marche aléatoire, ARIMA, GARCH) n'ont besoin d'aucun paquet d'apprentissage profond :
+# python -m prevision_metaux.calcul --update les recalcule en quelques minutes.

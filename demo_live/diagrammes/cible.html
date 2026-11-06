@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Processus cible N1</title><link rel="stylesheet" href="/diagrammes/commun.css">
+<style>.defil{overflow-x:auto}.defil svg{min-width:1290px}.journal{max-height:280px;overflow:auto;font-size:12.5px}.journal div{padding:3px 0;border-bottom:1px solid var(--grille)}.journal b{color:var(--laiton)}
+.legende{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--attenue);margin:2px 10px 6px}.legende i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}</style></head>
+<body>
+<header class="barre" id="barre"></header>
+<main>
+  <figure>
+    <div class="legende"><span><i style="background:var(--ok)"></i>terminé</span><span><i style="background:var(--reserve)"></i>réserve / arbitrage</span><span><i style="background:var(--stop)"></i>arrêt / escalade</span><span><i style="background:var(--bleu)"></i>en cours</span><span><i style="background:var(--attente)"></i>en attente</span><span>trait pointillé = cible non rejouée dans la démo</span></div>
+    <div class="defil" id="dessin"></div>
+    <figcaption>Processus N1 « Gérer la trésorerie », tel que dessiné dans ton architecture (page 3) : exécution autonome, supervision par exception. L’humain n’apparaît que sur les exceptions et la signature. Le jeton ● suit le passage choisi ; les étapes se colorent au fur et à mesure et le journal décrit chaque échange. A8 (relecture LLM) est ajouté à la chaîne de la démo. Cliquez sur une étape.</figcaption>
+  </figure>
+  <div class="grille" style="grid-template-columns:2fr 1fr">
+    <div class="carte"><h3>Journal des interactions</h3><div class="journal" id="journal"></div></div>
+    <div class="carte" id="metriques"></div>
+  </div>
+  <div class="detail" id="detail"><span class="vide">Cliquez sur une étape du processus.</span></div>
+</main>
+<script src="/diagrammes/commun.js"></script>
+<script>
+const COL = 90, X0 = 100, LH = 100, Y0 = 30, NW = 80, NH = 50, NC = 14;
+const W = X0 + NC * COL + 10;
+const COULOIRS = ['Contrôleur', 'Orchestration', 'Agents IA', 'Outils · dépôts', 'LLM Ops'];
+const SUBT = ['supervision par exception', 'n8n · LangGraph', 'une responsabilité chacun', 'aucun LLM', 'observabilité'];
+/* l : couloir, c : colonne. a : agent lié aux événements. */
+const E_ = [
+  { id: 'orc', l: 1, c: 0, t: ['Orchestrateur', 'quotidien 6 h'], a: 'SOURCE', d: 'Déclenché chaque jour à 6 h (ou par le dépôt d’un relevé) : il planifie le DAG, tient l’état, les reprises, le budget d’appels et les délais. Dans la démo, c’est le moteur LangGraph qui enchaîne les agents.', i: 'Orchestrateur → A1 : période + dossier' },
+  { id: 'acc', l: 0, c: 1, t: ['Accès fort', 'approuvé 1 fois'], a: 'A1', cible: true, d: 'Le contrôleur approuve l’accès fort au portail bancaire une seule fois ; ensuite un jeton à portée limitée reste au coffre. Non rejoué dans la démo (relevés fournis en PDF).' },
+  { id: 'A1', l: 2, c: 1, t: ['A1', 'Acquisition'], a: 'A1' },
+  { id: 'o1', l: 3, c: 1, t: ['Connecteur', 'banque · coffre'], a: 'A1', outil: true, d: 'Cible : connecteur Desjardins / navigateur piloté et coffre de secrets. Démo : lecture d’un dossier de relevés et calendrier de périodes.' },
+  { id: 'A2', l: 2, c: 2, t: ['A2', 'Extraction'], a: 'A2' },
+  { id: 'o2', l: 3, c: 2, t: ['pdfplumber', 'Pydantic · SHA'], a: 'A2', outil: true },
+  { id: 'gw1', l: 1, c: 3, t: ['Invariants', 'respectés ?'], a: 'A2', gw: 1, d: 'Après l’extraction : le rejeu des soldes ligne par ligne doit retomber juste. Non → rejet, aucune propagation, et une exception est ouverte dans la file du contrôleur. Oui → réconciliation.', i: 'A2 → orchestrateur : invariants vérifiés' },
+  { id: 'esc', l: 0, c: 3, t: ['Escalade', 'exceptions'], a: 'A2', esc: true, hum: true, d: 'File d’exceptions (motif, source, action proposée). La décision du contrôleur est consignée puis le traitement reprend en A3.', i: 'Orchestrateur → contrôleur : exception' },
+  { id: 'rag', l: 3, c: 3, t: ['Index RAG', 'FTS5 · BM25'], a: 'A3', outil: true, rag: true, d: 'Index documentaire consulté par A3 (précédents, plan de classement), A5 (politique, contrats) et A7 (rédaction R0). Démo : BM25 sur la documentation et les traces ; vecteurs et reclassement restent cibles.' },
+  { id: 'A3', l: 2, c: 4, t: ['A3', 'Réconciliation'], a: 'A3' },
+  { id: 'o3', l: 3, c: 4, t: ['SQLite · règles', '+ RAG précédents'], a: 'A3', outil: true },
+  { id: 'A4', l: 2, c: 5, t: ['A4', 'Prévision'], a: 'A4' },
+  { id: 'o4', l: 3, c: 5, t: ['SARIMAX', 'Monte Carlo · DSO'], a: 'A4', outil: true },
+  { id: 'A5', l: 2, c: 6, t: ['A5', 'Écarts'], a: 'A5' },
+  { id: 'o5', l: 3, c: 6, t: ['SQL grand livre', '+ RAG politique'], a: 'A5', outil: true },
+  { id: 'A6', l: 2, c: 7, t: ['A6', 'Contrôle'], a: 'A6', crit: true },
+  { id: 'o6', l: 3, c: 7, t: ['11 invariants', 'rejeu hors Excel'], a: 'A6', outil: true },
+  { id: 'A8', l: 2, c: 8, t: ['A8', 'Relecture'], a: 'A8', ajout: true },
+  { id: 'o8', l: 3, c: 8, t: ['Garde-fous', 'réf. · nombres'], a: 'A8', outil: true },
+  { id: 'gw2', l: 1, c: 9, t: ['Confiance', 'écarts ?'], a: 'A8', gw: 2, d: 'Seul point de sortie vers l’humain (A6 critique, A8 relit). Oui → A7 rédige. Non (lignes à classer, réserves, contrôle bloquant) → arbitrage par le contrôleur.', i: 'A6 + A8 → orchestrateur : verdict' },
+  { id: 'arb', l: 0, c: 9, t: ['Arbitrage', 'consigné'], a: 'A8', arb: true, hum: true, d: 'Le contrôleur tranche l’exception ; la décision est consignée et devient une règle de classement versionnée puis un cas de test (cible). Dans la démo, la chaîne s’arrête ici en attente d’arbitrage.', i: 'Orchestrateur → contrôleur : arbitrage demandé' },
+  { id: 'A7', l: 2, c: 10, t: ['A7', 'Restitution'], a: 'A7' },
+  { id: 'o7', l: 3, c: 10, t: ['openpyxl', 'feuilles miroir'], a: 'A7', outil: true },
+  { id: 'rev', l: 0, c: 11, t: ['Réviser R0', 'signer'], a: 'APPRO', hum: true, d: 'Le contrôleur révise le R0, ajuste le verdict et signe. Dans la démo l’approbation optionnelle est placée avant A7 ; dans la cible la signature suit la rédaction.', i: 'Contrôleur → orchestrateur : décision' },
+  { id: 'dif', l: 0, c: 12, t: ['Diffuser', 'PDG · chargé'], a: 'SORTIES', cible: true, hum: true, d: 'Diffusion au PDG et au chargé de compte : après signature humaine uniquement.' },
+  { id: 'rap', l: 0, c: 13, t: ['Rapport', 'horodaté'], a: 'SORTIES', fin: true, d: 'Classeur Excel R0–R5, brouillon R0 et tableau de trésorerie R0–R8, horodatés.', i: 'A7 → contrôleur : rapports livrés' },
+  { id: 'trc', l: 4, c: 1, w: 2, t: ['Trace par exécution', 'entrées · sorties · coût · durée'], a: 'SOURCE', ops: 'trace', d: 'Une trace par exécution : entrées, sorties, coût, durée et décision de chaque agent. C’est la piste d’audit. Démo : table des événements + suivi des appels LLM.' },
+  { id: 'eva', l: 4, c: 4, w: 2, t: ['Évaluation jeu figé', 'classement · écarts · dérive'], a: 'SOURCE', ops: 'eval', d: 'Évaluation sur jeu figé : taux de classement correct, écarts inexpliqués, dérive. Démo : banc d’essai (scénarios générés) et jeu d’évaluation du RAG.' },
+  { id: 'dia', l: 4, c: 7, w: 2, t: ['Diagnostic · porte', 'où ça a rompu · publier ?'], a: 'SOURCE', ops: 'diag', d: 'Diagnostic de l’agent en cause, puis porte de qualité : aucune version d’invite, de règle ou de paramètre n’est publiée sans évaluation réussie. Voir l’onglet « Performance ».' },
+  { id: 'cas', l: 4, c: 10, w: 2, t: ['Arbitrage = cas de test', 'la couverture croît'], a: 'SOURCE', ops: 'cas', cible: true, d: 'Chaque arbitrage devient un cas de test : la couverture d’évaluation croît avec l’usage. Cible : dans la démo les arbitrages ne sont pas encore consignés comme cas.' },
+];
+const FLUX = ['orc', 'A1', 'A2', 'gw1', 'A3', 'A4', 'A5', 'A6', 'A8', 'gw2', 'A7', 'rev', 'dif', 'rap'];
+const par = Object.fromEntries(E_.map(e => [e.id, e]));
+const nw = e => (e.w || 1) * COL - (COL - NW);
+const pos = e => [X0 + e.c * COL + (COL - NW) / 2, Y0 + e.l * LH + (LH - NH) / 2];
+const bx = e => { const [x, y] = pos(e); return { x, y, w: nw(e), cx: x + nw(e) / 2, cy: y + NH / 2, r: x + nw(e), b: y + NH }; };
+let vue = null, choisi = 'gw1';
+const barre = $('#barre');
+barreRejeu(barre, 'Processus cible N1', v => { vue = v; dessiner(); });
+
+/* ---------- état d'une étape ---------- */
+function etatA(k, E) { return E.ag[k] ? E.ag[k].classe : null; }
+function fini(E) { return !!E.fin; }
+function cls(e, E) {
+  const A = E.ag, arret2 = A.A2 && A.A2.classe === 'stop', arret1 = A.A1 && A.A1.classe === 'stop';
+  if (e.ops) return opsEtat(e, E);
+  if (e.outil) { if (e.id === 'rag') return (A.A3 || A.A5 || A.A7) ? 'ok' : 'att'; const c = etatA(e.a, E); return c || (actif(e, E) ? 'cours' : (fini(E) ? 'non' : 'att')); }
+  switch (e.id) {
+    case 'orc': return E.demarrage ? 'ok' : 'att';
+    case 'acc': return 'cible';
+    case 'gw1': if (arret2) return 'stop'; if (arret1) return 'non'; return A.A2 ? 'ok' : (actif(e, E) ? 'cours' : (fini(E) ? 'non' : 'att'));
+    case 'esc': return (arret1 || arret2) && fini(E) ? 'stop' : 'att';
+    case 'gw2': { if (!A.A8) return fini(E) ? 'non' : (actif(e, E) ? 'cours' : 'att'); const arb = A.A3 && A.A3.statut === 'a_arbitrer'; const blq = A.A6 && A.A6.classe === 'stop'; return blq ? 'stop' : (arb || A.A6 && A.A6.classe === 'res' || A.A8.classe === 'res') ? 'res' : 'ok'; }
+    case 'arb': return A.A8 && ((A.A3 && A.A3.statut === 'a_arbitrer') || (A.A6 && A.A6.classe !== 'ok')) && !A.A7 ? 'res' : 'att';
+    case 'rev': if (E.enAttenteAppro) return 'cours'; if (E.appro === 'rejeter') return 'stop'; return A.APPRO ? 'ok' : 'att';
+    case 'dif': return 'cible';
+    case 'rap': return fini(E) && A.A7 && A.A7.classe !== 'stop' ? 'ok' : (fini(E) ? 'non' : 'att');
+  }
+  const c = etatA(e.a, E);
+  return c || (actif(e, E) ? 'cours' : (fini(E) ? 'non' : 'att'));
+}
+function opsEtat(e, E) {
+  if (e.ops === 'trace') return E.demarrage ? (E.vivant ? 'cours' : 'ok') : 'att';
+  if (e.ops === 'cas') return 'cible';
+  return E.fin ? 'ok' : 'att';
+}
+function actif(e, E) {
+  if (!E.vivant) return false;
+  const faits = FLUX.filter(id => { const x = par[id]; return !['acc', 'dif', 'esc', 'arb'].includes(id) && ['ok', 'res', 'stop'].includes(cls(x, E)); });
+  const der = faits.pop(), sv = FLUX[FLUX.indexOf(der) + 1];
+  return sv === e.id || (e.outil && sv === e.a);
+}
+function position(E) { const ids = FLUX.filter(id => !['acc', 'dif', 'esc', 'arb'].includes(id) && ['ok', 'res', 'stop'].includes(cls(par[id], E))); return ids.length ? par[ids[ids.length - 1]] : null; }
+const COUL = { ok: 'var(--ok)', res: 'var(--reserve)', stop: 'var(--stop)', cours: 'var(--bleu)', att: 'var(--attente)', non: 'var(--grille)', cible: 'var(--grille)' };
+const LIBC = { ...LIB, cible: '· cible (non rejouée dans la démo)' };
+
+/* ---------- liens ---------- */
+function poly(pts) { return 'M' + pts.map(p => p.join(',')).join(' L'); }
+function lien(a, b, mode) { // mode : 'h' même couloir, 'coude' (source droite → cible gauche), 'v', ou tableau de points
+  const A = bx(par[a]), B = bx(par[b]);
+  if (Array.isArray(mode)) return poly(mode);
+  if (mode === 'v') return A.cy < B.cy ? poly([[A.cx, A.b], [B.cx, B.y]]) : poly([[A.cx, A.y], [B.cx, B.b]]);
+  if (mode === 'h') return poly([[A.r, A.cy], [B.x, B.cy]]);
+  const mx = (A.r + B.x) / 2; return poly([[A.r, A.cy], [mx, A.cy], [mx, B.cy], [B.x, B.cy]]);
+}
+function liensDef() {
+  const A = id => bx(par[id]);
+  return [
+    ['orc', 'A1', 'coude'], ['A1', 'A2', 'h'], ['A2', 'gw1', 'coude', 'A2'], ['gw1', 'A3', 'coude', 'gw1', 'oui'],
+    ['A3', 'A4', 'h'], ['A4', 'A5', 'h'], ['A5', 'A6', 'h'], ['A6', 'A8', 'h'], ['A8', 'gw2', 'coude', 'A8'], ['gw2', 'A7', 'coude', 'gw2', 'oui'],
+    ['A7', 'rev', 'coude'], ['rev', 'dif', 'h'], ['dif', 'rap', 'h'],
+    ['gw1', 'esc', 'v', 'gw1', 'non — rejet'], ['esc', 'A3', [[A('esc').r, A('esc').cy], [A('A3').cx, A('esc').cy], [A('A3').cx, A('A3').y]], 'esc', 'décision consignée'],
+    ['gw2', 'arb', 'v', 'gw2', 'non'], ['arb', 'A7', [[A('arb').r, A('arb').cy], [A('A7').cx, A('arb').cy], [A('A7').cx, A('A7').y]], 'arb', 'arbitré'],
+  ];
+}
+function lienEtat(a, b, E, cle) {
+  const sa = cls(par[a], E), sb = cls(par[b], E);
+  if (cle === 'gw1' && b === 'esc') return sb === 'stop' ? 'stop' : '';
+  if (cle === 'esc') return '';
+  if (cle === 'gw2' && b === 'arb') return sb === 'res' ? 'res' : '';
+  if (cle === 'arb') return '';
+  if (b === 'esc' || b === 'arb') return '';
+  if (a === 'gw1' && b === 'A3') return sa === 'ok' && E.ag.A3 ? 'fait' : (sa === 'ok' && actif(par[b], E) ? 'actif' : '');
+  if (a === 'gw2' && b === 'A7') return sa === 'ok' && E.ag.A7 ? 'fait' : (sa === 'ok' && actif(par[b], E) ? 'actif' : '');
+  if (['ok', 'res'].includes(sa) && ['ok', 'res', 'stop'].includes(sb)) return sb === 'stop' ? 'stop' : (sb === 'res' ? 'res' : 'fait');
+  if (['ok', 'res'].includes(sa) && sb === 'cours') return 'actif';
+  return '';
+}
+
+function dessiner() {
+  const E = vue.etat, H_ = Y0 + 5 * LH + 6;
+  const svg = S('svg', { viewBox: `0 0 ${W} ${H_}`, role: 'img', 'aria-label': 'Processus cible N1 de la gestion de trésorerie en cinq couloirs' });
+  svg.append(S('defs', {}, S('marker', { id: 'fl', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, S('path', { d: 'M0 0 L10 5 L0 10 z', fill: 'currentColor', opacity: .7 }))));
+  COULOIRS.forEach((n, i) => {
+    const y = Y0 + i * LH;
+    svg.append(S('rect', { x: 8, y, width: W - 16, height: LH, fill: i % 2 ? 'var(--surface)' : 'var(--surface2)', opacity: .65, stroke: 'var(--grille)' }), S('rect', { x: 8, y, width: 84, height: LH, fill: 'var(--surface2)', stroke: 'var(--grille)' }),
+      S('text', { x: 46, y: y + LH / 2, 'text-anchor': 'middle', transform: `rotate(-90 46 ${y + LH / 2})`, style: 'font-weight:600;font-size:12px' }, n));
+  });
+  svg.append(S('text', { x: X0, y: 20, class: 'att' }, 'Temps →  un passage se lit de gauche à droite'));
+  // liens
+  liensDef().forEach(([a, b, mode, cle, lab]) => {
+    const c = lienEtat(a, b, E, cle || a), cible = !c && (['esc', 'arb'].includes(b) || ['esc', 'arb'].includes(a)) ? ' cible' : '';
+    const p = S('path', { d: lien(a, b, mode), class: 'lien' + (c ? ' ' + c : ''), 'marker-end': 'url(#fl)', style: cible ? 'opacity:.55' : '' });
+    svg.append(p);
+    if (lab) { const A = bx(par[a]), B = bx(par[b]); const arr = Array.isArray(mode), lx = mode === 'v' ? A.cx + 6 : arr ? mode[0][0] + 6 : (A.r + B.x) / 2 + 4, ly = mode === 'v' ? (A.cy + B.cy) / 2 : arr ? mode[0][1] - 5 : B.cy - 6; svg.append(S('text', { x: lx, y: ly, 'text-anchor': 'start', style: 'font-size:10.5px;font-weight:600' }, lab)); }
+  });
+  // boucle A6 → A3 (rejet), cible
+  { const a = bx(par.A6), b = bx(par.A3), y = Y0 + LH * 1.5 + 18; svg.append(S('path', { d: poly([[a.cx, a.y], [a.cx, y], [b.cx + 14, y], [b.cx + 14, b.y]]), class: 'lien', style: 'opacity:.55', 'marker-end': 'url(#fl)' }), S('text', { x: (a.cx + b.cx) / 2 + 7, y: y - 5, 'text-anchor': 'middle', style: 'font-size:10.5px;font-weight:600' }, 'rejet : chiffre sans source (cible)')); }
+  // liens outils
+  E_.filter(e => e.outil && !e.rag).forEach(o => { const a = bx(par[o.a]), b = bx(o); svg.append(S('line', { x1: a.cx, y1: a.b, x2: b.cx, y2: b.y, class: 'base', 'marker-end': 'url(#fl)' })); });
+  { const r = bx(par.rag), a = bx(par.A3); svg.append(S('path', { d: poly([[r.r, r.cy], [a.x - 8, r.cy], [a.x - 8, a.b + 0], [a.x, a.cy + 12]]), class: 'base', 'marker-end': 'url(#fl)' })); }
+  // LLM Ops : flèches de suite
+  [['trc', 'eva'], ['eva', 'dia']].forEach(([a, b]) => { const A = bx(par[a]), B = bx(par[b]); svg.append(S('line', { x1: A.r, y1: A.cy, x2: B.x, y2: B.cy, class: 'lien fait', style: 'opacity:.6', 'marker-end': 'url(#fl)' })); });
+  // étapes
+  E_.forEach(e => {
+    const b = bx(e), s = cls(e, E), g = S('g', { class: 'noeud' + (choisi === e.id ? ' choisi' : ''), tabindex: 0, role: 'button', 'aria-label': `${e.t.join(' ')} : ${LIBC[s]}` });
+    const dash = e.outil || e.cible || s === 'cible' ? 'stroke-dasharray:4 3;' : '';
+    if (e.gw) {
+      g.append(S('polygon', { class: 'cadre', points: `${b.cx},${b.y - 8} ${b.r + 12},${b.cy} ${b.cx},${b.b + 8} ${b.x - 12},${b.cy}`, style: `fill:var(--surface);stroke:${COUL[s]};stroke-width:3.2` }));
+    } else {
+      g.append(S('rect', { class: 'cadre', x: b.x, y: b.y, width: b.w, height: NH, rx: e.outil || e.ops ? 4 : 10, style: dash + (e.hum ? 'stroke:var(--laiton);stroke-width:2' : '') }),
+        S('rect', { class: 'bandeau' + (s === 'cours' ? ' pouls' : ''), x: b.x, y: b.y, width: b.w, height: 6, rx: 3, style: `fill:${COUL[s]}` }));
+    }
+    const cod = /^A\d$/.test(e.id);
+    g.append(S('text', { x: b.cx, y: b.cy + (e.gw ? -1 : 2), 'text-anchor': 'middle', style: `font-size:${cod ? 13 : 11.5}px;font-weight:${e.outil ? 400 : 600}` }, e.t[0]),
+      S('text', { x: b.cx, y: b.cy + (e.gw ? 12 : 16), 'text-anchor': 'middle', class: 'att', style: 'font-size:10.5px' }, sup(e.t[1], e.w ? 34 : 17)));
+    if (e.crit) g.append(S('text', { x: b.cx, y: b.b + 12, 'text-anchor': 'middle', style: 'font-size:10px;font-weight:700', fill: 'var(--stop)' }, 'critique adverse'));
+    if (e.ajout) g.append(S('text', { x: b.cx, y: b.b + 12, 'text-anchor': 'middle', style: 'font-size:10px;font-weight:700', fill: 'var(--bleu)' }, 'ajout démo'));
+    const mt = META[e.a];
+    if (cod && mt && mt.llm !== 'non') g.append(S('text', { x: b.r - 5, y: b.y + 19, 'text-anchor': 'end', style: 'font-size:9.5px;font-weight:700', fill: 'var(--bleu)' }, 'LLM'));
+    if (e.ops === 'trace' && vue.llm) g.append(S('text', { x: b.cx, y: b.b + 12, 'text-anchor': 'middle', class: 'att', style: 'font-size:10.5px' }, `${E.kpis.length ? '' : ''}${vue.llm.appels || 0} appel(s) LLM · ${vue.llm.cout ? '≈ ' + (vue.llm.cout < 0.01 ? '<0,01' : vue.llm.cout.toFixed(2).replace('.', ',')) + ' $' : '0 $'}`));
+    g.addEventListener('click', () => { choisi = e.id; dessiner(); });
+    g.addEventListener('keydown', ev => { if (ev.key === 'Enter') { choisi = e.id; dessiner(); } });
+    bulle(g, () => `<b>${e.t.join(' ')}</b><br>${LIBC[cls(e, E)]}`);
+    svg.append(g);
+  });
+  // jeton
+  const p = position(E);
+  if (p) { const b = bx(p); svg.append(S('circle', { cx: b.r - 9, cy: b.b - 9, r: 7, fill: 'var(--laiton)', stroke: 'var(--surface)', 'stroke-width': 2, class: E.vivant ? 'pouls' : '' }, S('title', {}, 'Position du jeton'))); }
+  $('#dessin').replaceChildren(svg);
+  journal(E); detail(E); metriques(E);
+}
+
+/* ---------- journal, détail, métriques ---------- */
+function narration(E) {
+  const L = [], ag = E.ag, d = k => (ag[k] && ag[k].detail) || {};
+  if (E.demarrage) L.push(['Orchestrateur', `lance le passage ${E.demarrage.detail.periode || ''} avec ${(E.demarrage.detail.fichiers || []).length} relevé(s)`]);
+  const c = (k, f) => { if (ag[k]) L.push([`${k} · ${META[k].nom}`, f()]); };
+  c('A1', () => `Orchestrateur → A1 : ${ag.A1.message || 'relevés trouvés'}`);
+  c('A2', () => `A2 : ${nb(d('A2').nb_transactions)} transactions extraites, soldes rejoués`);
+  if (ag.A2) L.push(['Invariants respectés ?', ag.A2.classe === 'stop' ? 'NON — rejet, aucune propagation : exception ouverte dans la file du contrôleur' : 'oui — suite de la chaîne']);
+  c('A3', () => { const x = d('A3'); return `A3 → grand livre : ${(x.classees || []).length} lignes classées, ${(x.a_classer || []).length} « À classer », ${(x.doublons || []).length} doublon(s)`; });
+  c('A4', () => 'A4 ← grand livre : prévisions à 6 mois');
+  c('A5', () => `A5 ← grand livre + A4 : ${(d('A5').ecarts || []).length} lignes d’écart`);
+  c('A6', () => { const cs = (d('A6').resume || {}).controles || []; return `A6 refait ${cs.length} contrôles : ${cs.filter(x => x.ok).length} OK → ${ag.A6.statut}`; });
+  c('A8', () => { const r = ((d('A8').resume || {}).relecture || {}).constats || []; return `A8 relit : ${r.length} constat(s)`; });
+  if (ag.A8) { const g = cls(par.gw2, E); L.push(['Confiance et écarts expliqués ?', g === 'ok' ? 'oui — A7 rédige' : g === 'stop' ? 'NON — contrôle bloquant' : 'NON — arbitrage du contrôleur demandé']); }
+  if (E.enAttenteAppro) L.push(['Contrôleur', '● attend la décision (réviser, signer)']);
+  if (E.appro) L.push(['Contrôleur → orchestrateur', 'décision : ' + E.appro]);
+  c('A7', () => `A7 → contrôleur : ${(d('A7').fichiers || []).length} fichier(s)`);
+  if (E.fin) L.push(['Fin du passage', `${E.fin.statut}${E.fin.detail && E.fin.detail.message ? ' — ' + sup(E.fin.detail.message, 140) : ''}`]);
+  return L;
+}
+function journal(E) { const j = $('#journal'), L = narration(E); j.replaceChildren(...(L.length ? L.map(([a, b], i) => H('div', {}, H('b', {}, (i + 1) + '. ' + a + ' — '), b)) : [H('div', { class: 'vide' }, 'Aucun événement pour l’instant.')])); j.scrollTop = j.scrollHeight; }
+function detail(E) {
+  const e = par[choisi], m = META[e.a] || {}, s = cls(e, E), box = $('#detail');
+  const kids = [H('h2', {}, e.t.join(' '), ' ', H('span', { class: 'puce', style: `background:${COUL[s]};${s === 'cible' ? 'color:var(--texte)' : ''}` }, LIBC[s]))];
+  kids.push(H('div', {}, e.d || (e.outil ? `Outil déterministe de ${e.a} : ${m.outil || ''}.` : m.role)));
+  kids.push(H('div', { class: 'att', style: 'margin-top:4px' }, `Couloir : ${COULOIRS[e.l]}` + (e.i ? ' · Échange : ' + e.i : '')));
+  if (/^A\d$/.test(e.id)) { kids.push(H('div', { class: 'att' }, `Reçoit : ${m.entrees} · Produit : ${m.sorties} · LLM : ${m.llm}`)); const a = E.ag[e.a]; if (a && a.duree != null) kids.push(H('div', {}, 'Durée : ' + sec(a.duree))); if (a && a.message) kids.push(H('p', {}, a.message)); if (m.rapports && m.rapports.length) kids.push(H('div', { class: 'chips' }, H('b', {}, 'Rapports : '), ...m.rapports.map(r => H('span', {}, r)))); }
+  box.replaceChildren(...kids);
+}
+function metriques(E) {
+  const z = $('#metriques'); z.replaceChildren(H('h3', {}, 'Supervision par exception'));
+  const A = E.ag, hum = (A.A2 && A.A2.classe === 'stop' ? 1 : 0) + (cls(par.arb, E) === 'res' ? 1 : 0) + (A.APPRO || E.enAttenteAppro ? 1 : 0);
+  const faites = FLUX.filter(id => ['ok', 'res', 'stop'].includes(cls(par[id], E))), humaines = faites.filter(id => par[id].l === 0).length + (hum ? 0 : 0);
+  const llm = ['A3', 'A5', 'A7', 'A8'].filter(k => A[k]).length;
+  z.append(H('div', { class: 'k' }, H('div', {}, H('b', {}, String(hum)), H('small', {}, 'exception(s) / décision(s) humaine(s)')), H('div', {}, H('b', {}, `${faites.length}`), H('small', {}, 'étapes franchies sur ' + FLUX.length)), H('div', {}, H('b', {}, String(llm)), H('small', {}, 'agents LLM sollicités'))));
+  const l = vue.llm || {};
+  z.append(H('div', { class: 'k', style: 'margin-top:8px' }, H('div', {}, H('b', {}, String(l.appels || 0)), H('small', {}, 'appels LLM (trace)')), H('div', {}, H('b', {}, String(l.rejets || 0)), H('small', {}, 'rejets de garde-fou')), H('div', {}, H('b', {}, String(E.fin && E.fin.detail ? (E.fin.detail.a8_rejetes || []).length : '—')), H('small', {}, 'constats A8 rejetés'))));
+  z.append(H('div', { class: 'att', style: 'margin-top:6px' }, 'Règle d’or du schéma : aucun agent ne publie ; A6 est le seul point de sortie vers l’humain ; toute donnée porte sa source.'));
+}
+</script></body></html>

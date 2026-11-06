@@ -1,0 +1,3 @@
+﻿modele;duree_s;erreur;n_attendues;n_sections;n_llm;exactes;rappel;precision;inventees;strict_verifiees;strict_rejetees;strict_utilisable;tolerant_verifiees;tolerant_rejetees;tolerant_utilisable
+muse-glimmer:latest;>300;timeout 5 min;;;;;;;;;;;;;
+qwen3-coder:latest;201.3;;30;2;30;30;1.0;1.0;0;30;0;True;30;0;True

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Groupe Usinage Saint-Maurice — architecture d'affaires (BIZBOK)</title>
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#fff; --ink:#1b2430; --muted:#5b6573; --line:#d9dde3; --accent:#2563eb; --accent-ink:#fff;
+  --good:#1a9a4a; --warn:#d9930a; --bad:#d03b3b;
+  --h1:#d03b3b; --h2:#ee8a3a; --h3:#f2cc4a; --h4:#a8cf5a; --h5:#3aa65a;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#12161c; --surface:#1a2029; --ink:#e7ebf1; --muted:#9aa5b4; --line:#2c3541; --accent:#6aa1ff; --accent-ink:#0b1220; --shadow:0 1px 2px rgba(0,0,0,.4); }
+}
+:root[data-theme="dark"]{ --bg:#12161c; --surface:#1a2029; --ink:#e7ebf1; --muted:#9aa5b4; --line:#2c3541; --accent:#6aa1ff; --accent-ink:#0b1220; --shadow:0 1px 2px rgba(0,0,0,.4); }
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14.5px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:14px 20px 0;max-width:1500px;margin:0 auto}
+header h1{margin:0;font-size:1.35rem;letter-spacing:-.01em}
+header p{margin:.15rem 0 .6rem;color:var(--muted);max-width:980px}
+.top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+nav{display:flex;gap:6px;flex-wrap:wrap;padding:8px 20px;max-width:1500px;margin:0 auto;position:sticky;top:0;background:var(--bg);z-index:5;border-bottom:1px solid var(--line)}
+nav button{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 11px;border-radius:999px;cursor:pointer;font:inherit}
+nav button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;max-width:1500px;margin:0 auto;padding:14px 20px 40px}
+@media (max-width:1050px){.layout{grid-template-columns:1fr}}
+main{min-width:0}
+aside#panel{position:sticky;top:58px;align-self:start;max-height:calc(100vh - 72px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)}
+@media (max-width:1050px){aside#panel{position:static;max-height:none}}
+h2{font-size:1.15rem;margin:.2rem 0 .1rem}
+h3{font-size:1rem;margin:1rem 0 .3rem}
+.lead{color:var(--muted);margin:.1rem 0 .8rem;max-width:900px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom:12px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:.4rem 0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);color:var(--ink);padding:5px 10px;cursor:pointer;font:inherit;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+button.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:5px 11px;border-radius:8px;cursor:pointer;font:inherit}
+button.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+input[type=range]{accent-color:var(--accent);vertical-align:middle}
+select,input[type=text]{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:.84rem;background:var(--surface);cursor:pointer;margin:2px 3px 2px 0}
+.chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chip.on{outline:2px solid var(--accent)}
+.muted{color:var(--muted)} .small{font-size:.85rem}
+.tag{display:inline-block;border-radius:6px;padding:0 7px;font-size:.78rem;color:#fff}
+table{border-collapse:collapse;width:100%}
+th,td{border-bottom:1px solid var(--line);padding:5px 7px;text-align:left;vertical-align:top}
+th{font-weight:600;font-size:.85rem;color:var(--muted)}
+svg text{font-family:inherit}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);align-items:center}
+.swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;margin-right:3px}
+.capgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(235px,1fr))}
+.l1{border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--surface)}
+.l1 h4{margin:0 0 6px;font-size:.9rem}
+.l2{display:block;width:100%;text-align:left;border:1px solid rgba(0,0,0,.12);border-radius:6px;padding:4px 7px;margin:3px 0;cursor:pointer;font:inherit;font-size:.84rem;color:#111;position:relative}
+.l2.dim{opacity:.28}
+.l2.sel{outline:3px solid var(--ink)}
+.l2 b{float:right;font-weight:600;opacity:.75}
+.stages{display:flex;gap:0;overflow-x:auto;padding-bottom:6px}
+.stage{flex:1 0 150px;min-width:150px;background:var(--surface);border:1px solid var(--line);border-top:5px solid #5eb8b0;padding:8px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);margin-right:-6px;padding-left:22px;padding-right:20px;cursor:pointer}
+.stage.done{background:color-mix(in srgb,var(--good) 14%,var(--surface))}
+.stage.cur{outline:2px solid var(--accent)}
+.stage .n{font-size:.75rem;color:var(--muted)}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface)}
+.kpi .v{font-size:1.25rem;font-weight:650}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%}
+.note{border-left:4px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface));padding:8px 12px;border-radius:6px;margin:8px 0}
+.src{font-size:.78rem;color:var(--muted)}
+.node{cursor:pointer}
+.node text{pointer-events:none}
+.sub{display:flex;gap:6px;flex-wrap:wrap;margin:.2rem 0 .8rem}
+ul.tight{margin:.2rem 0;padding-left:1.1rem}
+.good{color:var(--good)} .bad{color:var(--bad)} .warnc{color:var(--warn)}
+footer{max-width:1500px;margin:0 auto;padding:0 20px 30px;color:var(--muted);font-size:.8rem}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div>
+      <h1>Groupe Usinage Saint-Maurice — l'architecture d'affaires du projet de trésorerie</h1>
+      <p>Entreprise d'usinage de précision de Trois-Rivières (cas fictif du projet de trésorerie), décrit avec les notions du BIZBOK® Guide v11 : capacités, flux de valeur, processus N1 à N5, information, initiatives et dépendances. Les clients, fournisseurs, banques, catégories de flux et agents viennent du projet. Cliquez sur n'importe quel élément pour voir ce qui en dépend.</p>
+    </div>
+    <div class="seg" id="themeSeg"><button data-th="auto" aria-pressed="true">Auto</button><button data-th="light" aria-pressed="false">Clair</button><button data-th="dark" aria-pressed="false">Sombre</button></div>
+  </div>
+</header>
+<nav id="nav" role="tablist"></nav>
+<div class="layout">
+  <main id="main"></main>
+  <aside id="panel" aria-live="polite"></aside>
+</div>
+<footer>Cas fictif ; les noms de contreparties et les catégories proviennent de tresorerie.db. Notions et définitions inspirées de « A Guide to the Business Architecture Body of Knowledge® (BIZBOK® Guide) », v11.0, Business Architecture Guild®, 2022 (parties 1 à 8). Outil d'étude personnel : ne pas redistribuer.</footer>
+<script src="donnees_tresorerie.js"></script>
+<script src="data.js"></script>
+<script src="data_proc.js"></script>
+<script src="app.js"></script>
+<script src="live.js"></script>
+<script src="views_a.js"></script>
+<script src="views_b.js"></script>
+<script src="views_c.js"></script>
+<script src="views_d.js"></script>
+<script src="views_e.js"></script>
+<script src="views_f.js"></script>
+<script src="views_g.js"></script>
+<script src="views_h.js"></script>
+<script>boot();</script>
+</body>
+</html>

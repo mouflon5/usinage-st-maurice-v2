@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_mai[  14/20] DONNEES_FAUSSES      s0019_limite_jumeaux_legitimes                   attendu=["complet", "complet_avec_reserves", "a_arbitrer"] obtenu=a_arbitrer
+[  19/20] MAL_CLASSE           s0020_limite_collisions_mots_cles                attendu=["a_arbitrer"] obtenu=complet_avec_reserves
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Marco\Desktop\Bibliothèque\Projets AI\Projet python\Agents\orchestrateur_live\banc_essai\executeur.py", line 387, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\Marco\Desktop\Bibliothèque\Projets AI\Projet python\Agents\orchestrateur_live\banc_essai\executeur.py", line 383, in main
+    print(f"\n{fin.capitalize()} en {time.time() - t0:.0f} s : {n_ok}/{fait} OK. Lot {run_id} \u2192 {chemin_resultats()}", flush=True)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Marco\AppData\Local\Programs\Python\Python314\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 53: character maps to <undefined>

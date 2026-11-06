@@ -1,0 +1,259 @@
+{
+ "horodatage": "2026-11-01T08:47:02",
+ "compte": "CP 85690",
+ "periode": "2026-10",
+ "periode_debut": "2026-10",
+ "db_path": "C:\\Users\\Marco\\Desktop\\Bibliothèque\\Projets AI\\Projet python\\Agents\\orchestrateur_usinage_v2\\demo_live\\donnees\\base_demo.db",
+ "statut_pipeline": "a_arbitrer",
+ "message_pipeline": "Pipeline terminé, arbitrage humain requis. 8 écriture(s) chargée(s), 4 ligne(s) « À classer » à arbitrer par le contrôleur : « Achat chez PAYPAL » (-162.51 $); « Achat chez ESSO » (-138.50 $); « Achat chez WALMART » (-154.49 $); « Achat chez DOLLARAMA » (-138.25 $).",
+ "mode_llm": "reel",
+ "agents": [
+  {
+   "id": "A1",
+   "nom": "Acquisition",
+   "statut": "complet",
+   "message": "Compte CP 85690 : 1 période(s) couverte(s), aucun trou détecté. Prêt pour A2 (Extraction)."
+  },
+  {
+   "id": "A2",
+   "nom": "Extraction",
+   "statut": "complet",
+   "message": "15 transaction(s) extraite(s) (format F4), aucune anomalie. Prêt pour A3."
+  },
+  {
+   "id": "A3",
+   "nom": "Réconciliation",
+   "statut": "a_arbitrer",
+   "message": "8 écriture(s) chargée(s), 4 ligne(s) « À classer » à arbitrer par le contrôleur : « Achat chez PAYPAL » (-162.51 $); « Achat chez ESSO » (-138.50 $); « Achat chez WALMART » (-154.49 $); « Achat chez DOLLARAMA » (-138.25 $)."
+  },
+  {
+   "id": "A4",
+   "nom": "Prévision",
+   "statut": null,
+   "message": null
+  },
+  {
+   "id": "A5",
+   "nom": "Écarts",
+   "statut": null,
+   "message": null
+  },
+  {
+   "id": "A6",
+   "nom": "Contrôle",
+   "statut": null,
+   "message": null
+  },
+  {
+   "id": "A8",
+   "nom": "Relecture",
+   "statut": "ok",
+   "message": "Relecture llm : 0 réserve(s), 0 remarque(s)."
+  },
+  {
+   "id": "A7",
+   "nom": "Reporting",
+   "statut": null,
+   "message": null
+  }
+ ],
+ "transactions": [
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-01",
+   "description": "Prélèvement INTERETS - DESJARDINS ENTREPRISE",
+   "montant": -5310.69,
+   "solde": 708329.99
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-03",
+   "description": "Prélèvement PAIE ADMINISTRATION - REMISES RQ",
+   "montant": -24759.7,
+   "solde": 683570.29
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-07",
+   "description": "Dépôt FACTURE USINAGE - MARMEN INC FACT 6088",
+   "montant": 85655.91,
+   "solde": 769226.2
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-07",
+   "description": "Paiement à OUTILLAGE - KENNAMETAL CANADA FAC",
+   "montant": -14572.25,
+   "solde": 754653.95
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-07",
+   "description": "Achat chez PAYPAL",
+   "montant": -162.51,
+   "solde": 754491.44
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-12",
+   "description": "Prélèvement HONORAIRES - RAYMOND CHABOT GRAN",
+   "montant": -24056.54,
+   "solde": 730434.9
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-13",
+   "description": "Dépôt PROTOTYPAGE - INNOVATION MAURICIE FACT",
+   "montant": 73818.1,
+   "solde": 804253.0
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-16",
+   "description": "Prélèvement FRET - TRANSPORT ROBERT FACT 922",
+   "montant": -24117.26,
+   "solde": 780135.74
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-16",
+   "description": "Achat chez ESSO",
+   "montant": -138.5,
+   "solde": 779997.24
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-19",
+   "description": "Prélèvement PAIE ADMINISTRATION - REMISES RQ",
+   "montant": -20780.01,
+   "solde": 759217.23
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-22",
+   "description": "Paiement à FRAIS BANCAIRES - DESJARDINS ENTR",
+   "montant": -2961.43,
+   "solde": 756255.8
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-24",
+   "description": "Dépôt PROTOTYPAGE - INNOVATION MAURICIE FACT",
+   "montant": 72389.44,
+   "solde": 828645.24
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-25",
+   "description": "Achat chez STARBUCKS",
+   "montant": -39.58,
+   "solde": 828605.66
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-28",
+   "description": "Achat chez WALMART",
+   "montant": -154.49,
+   "solde": 828451.17
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-31",
+   "description": "Achat chez DOLLARAMA",
+   "montant": -138.25,
+   "solde": 828312.92
+  }
+ ],
+ "resume_a3": {
+  "inseres_staging": 12,
+  "promus_journal_general": 8,
+  "doublons_ignores": 3,
+  "a_classer": 4,
+  "par_methode": {
+   "regle": 8
+  }
+ },
+ "residu_a3": [
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-07",
+   "description": "Achat chez PAYPAL",
+   "montant": -162.51,
+   "solde": 754491.44,
+   "cle_doublon": "2026-10-07|-162.51|Achat chez PAYPAL",
+   "suggestion": "Intérêts et frais bancaires (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction est une sortie de fonds via PayPal, qui est généralement associée à des frais bancaires ou des intérêts, et elle est donc classée dans la catégorie 'Intérêts et frais bancaires'."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-16",
+   "description": "Achat chez ESSO",
+   "montant": -138.5,
+   "solde": 779997.24,
+   "cle_doublon": "2026-10-16|-138.5|Achat chez ESSO",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction est une dépense liée à l'achat de carburant, qui ne correspond à aucune des catégories fournies. Elle pourrait être liée à l'entretien et la réparation des machines, mais il n'y a pas assez d'informations pour en être certain."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-28",
+   "description": "Achat chez WALMART",
+   "montant": -154.49,
+   "solde": 828451.17,
+   "cle_doublon": "2026-10-28|-154.49|Achat chez WALMART",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction n'est pas liée à l'activité principale de la PME, ni à aucun des coûts ou revenus mentionnés. Elle semble être une dépense personnelle et non professionnelle."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-31",
+   "description": "Achat chez DOLLARAMA",
+   "montant": -138.25,
+   "solde": 828312.92,
+   "cle_doublon": "2026-10-31|-138.25|Achat chez DOLLARAMA",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction représente un achat chez DOLLARAMA, qui est une petite dépense non liée à l'activité principale de la PME. Elle ne correspond à aucune des catégories fournies."
+  }
+ ],
+ "previsions": {},
+ "flux_net_prevu": {},
+ "ecarts": [],
+ "commentaire": {},
+ "controles": [],
+ "relecture": {
+  "origine": "llm",
+  "notes": {
+   "classement": 5,
+   "doublons": 5,
+   "commentaire": 5,
+   "coherence": 5
+  },
+  "constats": [],
+  "rejetes": []
+ },
+ "empreinte": null,
+ "alertes": [],
+ "decision_humaine": {},
+ "fichiers": [],
+ "gouvernance": {
+  "run_id": "ORCH-20261101T134616-ed76c0",
+  "chargement": {
+   "stg": 15,
+   "insere": 12,
+   "doublon": 3,
+   "rejete": 0
+  },
+  "qualite": {
+   "execution_id": "DQ-20261101T134702-c6aa87",
+   "score_global": 94.65,
+   "nb_regles": 20,
+   "nb_echecs": 3,
+   "nb_bloquants_echec": 0
+  }
+ },
+ "id": "20261101T084702203714"
+}

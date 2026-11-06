@@ -1,0 +1,368 @@
+{
+ "horodatage": "2026-11-01T08:34:41",
+ "compte": "CP 85690",
+ "periode": "2026-10",
+ "periode_debut": "2026-10",
+ "db_path": "C:\\Users\\Marco\\Desktop\\Bibliothèque\\Projets AI\\Projet python\\Agents\\orchestrateur_usinage_v2\\demo_live\\donnees\\base_demo.db",
+ "statut_pipeline": "a_arbitrer",
+ "message_pipeline": "Pipeline terminé, arbitrage humain requis. 14 écriture(s) chargée(s), 9 ligne(s) « À classer » à arbitrer par le contrôleur : « Achat chez ESSO » (-63.80 $); « Achat chez TELUS » (-163.50 $); « Achat chez GOOGLE WORKSPACE » (-73.33 $); « Achat chez BELL MOBILITE » (-137.86 $); « Achat chez STARBUCKS » (-39.58 $); « Achat chez ADOBE » (-310.49 $); « Achat chez SANDVIK COROMANT » (-2,254.82 $); « Achat chez AUBERGE GODEFROY » (-161.26 $); « Achat chez ST-HUBERT » (-161.38 $).",
+ "mode_llm": "simule",
+ "agents": [
+  {
+   "id": "A1",
+   "nom": "Acquisition",
+   "statut": "complet",
+   "message": "Compte CP 85690 : 1 période(s) couverte(s), aucun trou détecté. Prêt pour A2 (Extraction)."
+  },
+  {
+   "id": "A2",
+   "nom": "Extraction",
+   "statut": "complet",
+   "message": "23 transaction(s) extraite(s) (format F4), aucune anomalie. Prêt pour A3."
+  },
+  {
+   "id": "A3",
+   "nom": "Réconciliation",
+   "statut": "a_arbitrer",
+   "message": "14 écriture(s) chargée(s), 9 ligne(s) « À classer » à arbitrer par le contrôleur : « Achat chez ESSO » (-63.80 $); « Achat chez TELUS » (-163.50 $); « Achat chez GOOGLE WORKSPACE » (-73.33 $); « Achat chez BELL MOBILITE » (-137.86 $); « Achat chez STARBUCKS » (-39.58 $); « Achat chez ADOBE » (-310.49 $); « Achat chez SANDVIK COROMANT » (-2,254.82 $); « Achat chez AUBERGE GODEFROY » (-161.26 $); « Achat chez ST-HUBERT » (-161.38 $)."
+  },
+  {
+   "id": "A4",
+   "nom": "Prévision",
+   "statut": null,
+   "message": null
+  },
+  {
+   "id": "A5",
+   "nom": "Écarts",
+   "statut": null,
+   "message": null
+  },
+  {
+   "id": "A6",
+   "nom": "Contrôle",
+   "statut": null,
+   "message": null
+  },
+  {
+   "id": "A8",
+   "nom": "Relecture",
+   "statut": "ok",
+   "message": "Relecture simule : 0 réserve(s), 0 remarque(s)."
+  },
+  {
+   "id": "A7",
+   "nom": "Reporting",
+   "statut": null,
+   "message": null
+  }
+ ],
+ "transactions": [
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-01",
+   "description": "Achat chez ESSO",
+   "montant": -63.8,
+   "solde": 1015843.36
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-01",
+   "description": "Dépôt PIECES DE RECHANGE - SCIERIE ST-SEVERI",
+   "montant": 91011.62,
+   "solde": 1106854.98
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-03",
+   "description": "Prélèvement PAIE ADMINISTRATION - REMISES RQ",
+   "montant": -24759.7,
+   "solde": 1082095.28
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-03",
+   "description": "Achat chez TELUS",
+   "montant": -163.5,
+   "solde": 1081931.78
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-04",
+   "description": "Paiement à ASSURANCE - INTACT ASSURANCE ENTR",
+   "montant": -10195.73,
+   "solde": 1071736.05
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-07",
+   "description": "Paiement à OUTILLAGE - KENNAMETAL CANADA FAC",
+   "montant": -14572.25,
+   "solde": 1057163.8
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-08",
+   "description": "Dépôt SUBVENTION - RSDE REVENU QUEBEC FACT 8",
+   "montant": 94463.9,
+   "solde": 1151627.7
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-12",
+   "description": "Paiement à PAIE PRODUCTION - DEPOT DIRECT EM",
+   "montant": -141303.07,
+   "solde": 1010324.63
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-12",
+   "description": "Paiement à FRET - TRANSPORT ROBERT FACT 6820",
+   "montant": -11847.49,
+   "solde": 998477.14
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-12",
+   "description": "Prélèvement ASSURANCE - INTACT ASSURANCE ENT",
+   "montant": -8337.05,
+   "solde": 990140.09
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-13",
+   "description": "Achat chez GOOGLE WORKSPACE",
+   "montant": -73.33,
+   "solde": 990066.76
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-14",
+   "description": "Achat chez BELL MOBILITE",
+   "montant": -137.86,
+   "solde": 989928.9
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-18",
+   "description": "Prélèvement SOUS-TRAITANCE - TRAITEMENT THER",
+   "montant": -65816.74,
+   "solde": 924112.16
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-19",
+   "description": "Prélèvement FRAIS BANCAIRES - DESJARDINS ENT",
+   "montant": -5286.03,
+   "solde": 918826.13
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-22",
+   "description": "Prélèvement INTERETS - DESJARDINS ENTREPRISE",
+   "montant": -3090.45,
+   "solde": 915735.68
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-25",
+   "description": "Achat chez STARBUCKS",
+   "montant": -39.58,
+   "solde": 915696.1
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-25",
+   "description": "Achat chez ADOBE",
+   "montant": -310.49,
+   "solde": 915385.61
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-28",
+   "description": "Dépôt CONTRAT RECURRENT - BOMBARDIER AERO FA",
+   "montant": 142945.74,
+   "solde": 1058331.35
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-28",
+   "description": "Achat chez SANDVIK COROMANT",
+   "montant": -2254.82,
+   "solde": 1056076.53
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-30",
+   "description": "Achat chez AUBERGE GODEFROY",
+   "montant": -161.26,
+   "solde": 1055915.27
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-31",
+   "description": "Paiement à PAIE PRODUCTION - DEPOT DIRECT EM",
+   "montant": -124152.14,
+   "solde": 931763.13
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-31",
+   "description": "Achat chez ST-HUBERT",
+   "montant": -161.38,
+   "solde": 931601.75
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-31",
+   "description": "Dépôt CONTRAT RAIL - ALSTOM LA POCATIERE FAC",
+   "montant": 215291.43,
+   "solde": 1146893.18
+  }
+ ],
+ "resume_a3": {
+  "inseres_staging": 23,
+  "promus_journal_general": 14,
+  "doublons_ignores": 0,
+  "a_classer": 9,
+  "par_methode": {
+   "regle": 14
+  }
+ },
+ "residu_a3": [
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-01",
+   "description": "Achat chez ESSO",
+   "montant": -63.8,
+   "solde": 1015843.36,
+   "cle_doublon": "2026-10-01|-63.8|Achat chez ESSO",
+   "suggestion": "À classer",
+   "confiance": 0.0,
+   "justification": "Aucun précédent similaire."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-03",
+   "description": "Achat chez TELUS",
+   "montant": -163.5,
+   "solde": 1081931.78,
+   "cle_doublon": "2026-10-03|-163.5|Achat chez TELUS",
+   "suggestion": "À classer",
+   "confiance": 0.0,
+   "justification": "Aucun précédent similaire."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-13",
+   "description": "Achat chez GOOGLE WORKSPACE",
+   "montant": -73.33,
+   "solde": 990066.76,
+   "cle_doublon": "2026-10-13|-73.33|Achat chez GOOGLE WORKSPACE",
+   "suggestion": "À classer",
+   "confiance": 0.0,
+   "justification": "Aucun précédent similaire."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-14",
+   "description": "Achat chez BELL MOBILITE",
+   "montant": -137.86,
+   "solde": 989928.9,
+   "cle_doublon": "2026-10-14|-137.86|Achat chez BELL MOBILITE",
+   "suggestion": "À classer",
+   "confiance": 0.0,
+   "justification": "Aucun précédent similaire."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-25",
+   "description": "Achat chez STARBUCKS",
+   "montant": -39.58,
+   "solde": 915696.1,
+   "cle_doublon": "2026-10-25|-39.58|Achat chez STARBUCKS",
+   "suggestion": "À classer",
+   "confiance": 0.0,
+   "justification": "Aucun précédent similaire."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-25",
+   "description": "Achat chez ADOBE",
+   "montant": -310.49,
+   "solde": 915385.61,
+   "cle_doublon": "2026-10-25|-310.49|Achat chez ADOBE",
+   "suggestion": "À classer",
+   "confiance": 0.0,
+   "justification": "Aucun précédent similaire."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-28",
+   "description": "Achat chez SANDVIK COROMANT",
+   "montant": -2254.82,
+   "solde": 1056076.53,
+   "cle_doublon": "2026-10-28|-2254.82|Achat chez SANDVIK COROMANT",
+   "suggestion": "Outillage et consommables d'atelier",
+   "confiance": 0.35,
+   "justification": "[simulé] Précédent faible : OUTILLAGE - SANDVIK COROMANT FACT 10174"
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-30",
+   "description": "Achat chez AUBERGE GODEFROY",
+   "montant": -161.26,
+   "solde": 1055915.27,
+   "cle_doublon": "2026-10-30|-161.26|Achat chez AUBERGE GODEFROY",
+   "suggestion": "À classer",
+   "confiance": 0.0,
+   "justification": "Aucun précédent similaire."
+  },
+  {
+   "fichier": "CP 85690_202610.pdf",
+   "date": "2026-10-31",
+   "description": "Achat chez ST-HUBERT",
+   "montant": -161.38,
+   "solde": 931601.75,
+   "cle_doublon": "2026-10-31|-161.38|Achat chez ST-HUBERT",
+   "suggestion": "À classer",
+   "confiance": 0.0,
+   "justification": "Aucun précédent similaire."
+  }
+ ],
+ "previsions": {},
+ "flux_net_prevu": {},
+ "ecarts": [],
+ "commentaire": {},
+ "controles": [],
+ "relecture": {
+  "origine": "simule",
+  "notes": {
+   "classement": 5,
+   "doublons": 5
+  },
+  "constats": [],
+  "rejetes": []
+ },
+ "empreinte": null,
+ "alertes": [],
+ "decision_humaine": {},
+ "fichiers": [],
+ "gouvernance": {
+  "run_id": "ORCH-20261101T133439-97ed0e",
+  "chargement": {
+   "stg": 23,
+   "insere": 23,
+   "doublon": 0,
+   "rejete": 0
+  },
+  "qualite": {
+   "execution_id": "DQ-20261101T133441-1e4f64",
+   "score_global": 95.11,
+   "nb_regles": 20,
+   "nb_echecs": 3,
+   "nb_bloquants_echec": 0
+  }
+ },
+ "id": "20261101T083441844046"
+}

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Performance agents et LLM</title><link rel="stylesheet" href="/diagrammes/commun.css">
+<style>
+.onglets{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}.onglets button{border-radius:999px;padding:5px 14px}.onglets button.on{background:var(--laiton);color:#fff;border-color:var(--laiton)}
+.tuiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+.tuile{background:var(--surface);border:1px solid var(--grille);border-radius:10px;padding:10px 12px}.tuile b{display:block;font-size:24px;font-variant-numeric:tabular-nums}.tuile small{color:var(--attenue)}
+.pile{display:flex;height:14px;border-radius:4px;overflow:hidden;gap:2px;min-width:120px}.pile i{display:block;height:100%}
+.pile .o{background:var(--ok)}.pile .r{background:var(--reserve)}.pile .s{background:var(--stop)}.pile .b{background:var(--bleu)}.pile .g{background:var(--attente)}.pile .l{background:var(--laiton)}
+.note{font-size:12.5px;color:var(--attenue);margin:6px 0}.deux{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:12px}
+table.t td.n{white-space:nowrap}table.t td small{color:var(--attenue)}tr.cl{cursor:pointer}tr.cl:hover{background:var(--surface2)}
+.legende{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--attenue);margin:4px 0}.legende i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+</style></head>
+<body>
+<header class="barre">
+  <h1>Performance · boucle LLM Ops</h1>
+  <button class="principal" id="rafale" title="Joue les 12 scénarios de la démo à la suite, sans effacer l’historique">Lancer une rafale (12 scénarios)</button>
+  <span class="att" id="statut"></span>
+</header>
+<main>
+  <div class="onglets" id="onglets"></div>
+  <div id="contenu"></div>
+</main>
+<script src="/diagrammes/commun.js"></script>
+<script>
+const ONGLETS = [['syn', '↻ Boucle LLM Ops'], ['trc', 'Trace'], ['obs', 'Observation'], ['eva', 'Évaluation'], ['dia', 'Diagnostic'], ['por', 'Porte et publication']];
+let P = null, onglet = 'syn';
+const AGENTS = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A8', 'A7'];
+const pct = (a, b, d = 0) => b ? (a / b * 100).toFixed(d).replace('.', ',') + ' %' : '—';
+const num = (v, d = 1) => v == null ? '—' : Number(v).toFixed(d).replace('.', ',');
+const usd = v => v == null ? '—' : (v < 0.01 && v > 0 ? '< 0,01' : v.toFixed(2).replace('.', ',')) + ' $';
+const ms = v => v == null ? '—' : (v >= 1000 ? (v / 1000).toFixed(2).replace('.', ',') + ' s' : Math.round(v) + ' ms');
+
+async function charger() { P = await api('/api/diag/perf'); const r = P.rafale; $('#rafale').disabled = r.en_cours; $('#statut').textContent = r.en_cours ? `Rafale en cours depuis ${r.debut}…` : ''; rendre(); }
+$('#rafale').onclick = async () => { const r = await api('/api/diag/perf/rafale', {}); $('#statut').textContent = r.ok ? 'Rafale lancée : ~1,5 minute.' : r.erreur; charger(); };
+charger(); setInterval(charger, 4000);
+
+function tab(entetes, lignes, nums = []) {
+  if (!lignes.length) return H('div', { class: 'vide' }, 'Pas encore de données.');
+  return H('table', { class: 't' }, H('tr', {}, ...entetes.map((e, i) => H('th', { class: nums.includes(i) ? 'n' : '' }, e))),
+    ...lignes.map(l => { const tr = l.ligne || l; return H('tr', { class: l.clic ? 'cl' : '', onclick: l.clic }, ...tr.map((c, i) => H('td', { class: nums.includes(i) ? 'n' : '' }, c && c.nodeType ? c : (c == null ? '' : String(c))))); }));
+}
+function pile(parts, titre) { // parts: [[classe, valeur, libellé]]
+  const tot = parts.reduce((s, p) => s + p[1], 0) || 1;
+  const d = H('div', { class: 'pile', role: 'img', 'aria-label': titre || parts.map(p => `${p[2]} ${p[1]}`).join(', ') });
+  parts.filter(p => p[1] > 0).forEach(p => { const i = H('i', { class: p[0], style: `width:${p[1] / tot * 100}%` }); bulle(i, `${p[2]} : ${p[1]} (${pct(p[1], tot)})`); d.append(i); });
+  return d;
+}
+function spark(v, w = 110, h = 24) {
+  if (!v || v.length < 2) return H('span', { class: 'att' }, '—');
+  const mx = Math.max(...v, 1e-9), pas = w / (v.length - 1);
+  const sv = S('svg', { viewBox: `0 0 ${w} ${h}`, width: w, height: h, role: 'img', 'aria-label': 'Évolution des dernières durées', style: 'display:inline-block;width:' + w + 'px' });
+  sv.append(S('polyline', { points: v.map((x, i) => `${(i * pas).toFixed(1)},${(h - 2 - x / mx * (h - 4)).toFixed(1)}`).join(' '), fill: 'none', stroke: 'var(--bleu)', 'stroke-width': 1.6 }));
+  return sv;
+}
+function carte(t, ...c) { return H('div', { class: 'carte' }, H('h3', {}, t), ...c); }
+function tuile(v, l, aide) { const d = H('div', { class: 'tuile' }, H('b', {}, v), H('small', {}, l)); if (aide) bulle(d, aide); return d; }
+function barresH(lignes, { max, fmt = x => x, couleur = 'var(--bleu)', w = 360 } = {}) {
+  const mx = max || Math.max(...lignes.map(l => l[1]), 1e-9), sv = S('svg', { viewBox: `0 0 ${w + 150} ${lignes.length * 24}`, role: 'img', 'aria-label': 'Barres horizontales' });
+  lignes.forEach(([n, v, c2], i) => { const y = i * 24; sv.append(S('text', { x: 0, y: y + 15 }, n), S('rect', { x: 70, y: y + 3, width: Math.max(2, v / mx * w), height: 14, rx: 3, fill: c2 || couleur }), S('text', { x: 76 + Math.max(2, v / mx * w), y: y + 15, class: 'att' }, fmt(v))); });
+  return sv;
+}
+
+function rendre() {
+  if (!P) return;
+  const bar = $('#onglets');
+  bar.replaceChildren(...ONGLETS.map(([k, l]) => H('button', { class: k === onglet ? 'on' : '', onclick: () => { onglet = k; rendre(); } }, l)));
+  const z = $('#contenu');
+  z.replaceChildren(...({ syn: vBoucle, trc: vTrc, obs: vObs, eva: vEva, dia: vDia, por: vPor }[onglet])());
+}
+
+/* ---------- synthèse ---------- */
+function vSyn() {
+  const R = P.runs, L = P.llm, tot = L.reduce((s, g) => s + g.n, 0), cout = L.reduce((s, g) => s + g.cout, 0), erreurs = L.reduce((s, g) => s + g.erreurs, 0);
+  const G = P.gardes, gn = G.reduce((s, g) => s + g.n, 0), gr = G.reduce((s, g) => s + g.rejets, 0);
+  const C = P.classement, ct = C.regle + C.llm + C.simule + C.a_classer;
+  const sortie = [H('div', { class: 'tuiles' },
+    tuile(String(R.n), 'passages joués', 'Nombre de passages enregistrés dans la base de démo'),
+    tuile(R.mesures ? pct(R.conformes, R.mesures) : '—', `conformes à l’attendu (${R.conformes} / ${R.mesures})`, 'Un passage est conforme si son issue est parmi celles attendues pour son scénario (mêmes règles que la répétition générale)'),
+    tuile(R.duree_p50 != null ? num(R.duree_p50, 1) + ' s' : '—', 'durée médiane d’un passage', 'p90 : ' + (R.duree_p90 != null ? num(R.duree_p90, 1) + ' s' : '—')),
+    tuile(String(tot), `appels LLM (${erreurs} en erreur)`, 'Appels réels et simulés, tous agents confondus'),
+    tuile(usd(cout), 'coût équivalent des appels', 'Coût qu’aurait le mode réel, d’après les jetons (estimés quand l’API ne les renvoie pas) et des tarifs indicatifs'),
+    tuile(gn ? pct(gr, gn, 1) : '—', `rejetés par les garde-fous (${gr} / ${gn})`, 'Productions du LLM refusées : nombre absent des sources, référence inconnue…'))];
+  // carte de l'architecture : agents colorés par santé
+  const svg = S('svg', { viewBox: '0 0 1100 120', role: 'img', 'aria-label': 'Pipeline A1 à A8 coloré par taux d’arrêt, avec durée médiane' });
+  svg.append(S('defs', {}, S('marker', { id: 'fl', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, S('path', { d: 'M0 0 L10 5 L0 10 z', fill: 'currentColor', opacity: .7 }))));
+  AGENTS.forEach((k, i) => {
+    const x = 10 + i * 135, a = P.agents[k], m = META[k];
+    const g = S('g', { class: 'noeud', tabindex: 0, role: 'button', 'aria-label': k + ' ' + m.nom, onclick: null });
+    const col = !a ? 'var(--attente)' : a.stop / a.n > .25 ? 'var(--stop)' : (a.stop || a.res) / a.n > .25 ? 'var(--reserve)' : 'var(--ok)';
+    g.append(S('rect', { class: 'cadre', x, y: 10, width: 112, height: 84, rx: 9 }), S('rect', { x, y: 10, width: 112, height: 6, rx: 3, fill: col }),
+      S('text', { x: x + 10, y: 38, style: 'font-weight:700;font-size:16px' }, k), S('text', { x: x + 10, y: 54, class: 'att' }, m.nom),
+      S('text', { x: x + 10, y: 72, style: 'font-size:11px' }, a ? `p50 ${ms(a.p50 * 1000)}` : '—'), S('text', { x: x + 10, y: 87, class: 'att', style: 'font-size:11px' }, a ? `${a.n} pass. · ${a.stop} arrêt${a.stop > 1 ? 's' : ''}` : ''));
+    if (m.llm && m.llm !== 'non') g.append(S('rect', { x: x + 76, y: 24, width: 28, height: 15, rx: 7, fill: 'none', stroke: 'var(--bleu)' }), S('text', { x: x + 90, y: 35, 'text-anchor': 'middle', style: 'font-size:10px;font-weight:700', fill: 'var(--bleu)' }, 'LLM'));
+    g.addEventListener('click', () => { onglet = 'ag'; rendre(); });
+    bulle(g, `<b>${k} · ${m.nom}</b><br>LLM : ${m.llm}<br>${a ? `${a.ok} ok · ${a.res} réserve · ${a.stop} arrêt` : 'aucun passage'}`);
+    svg.append(g);
+    if (i < AGENTS.length - 1) svg.append(S('line', { x1: x + 112, y1: 52, x2: x + 135, y2: 52, class: 'lien fait', 'marker-end': 'url(#fl)' }));
+  });
+  svg.append(S('text', { x: 10, y: 114, class: 'att', style: 'font-size:11px' }, 'Bandeau : vert = moins de 25 % de passages dégradés · jaune = réserves ou arrêts fréquents · rouge = arrêts fréquents. Cliquez pour le détail.'));
+  sortie.push(H('figure', {}, svg, H('figcaption', {}, 'Santé de chaque agent sur l’ensemble des passages joués. Ordre d’exécution de la chaîne : A8 relit le dossier avant que A7 produise les rapports.')));
+  const iss = Object.entries(R.issues).sort((a, b) => b[1] - a[1]);
+  sortie.push(H('div', { class: 'grille' },
+    carte('Issue des passages', iss.length ? H('div', {}, pile(iss.map(([k, n]) => [{ ok: 'o', res: 'r', stop: 's' }[classe(k)], n, k])), tab(['', 'Issue', 'Passages'], iss.map(([k, n]) => [{ ok: '✓', res: '⚠', stop: '✕' }[classe(k)], k, n]), [2])) : H('div', { class: 'vide' }, 'Aucun passage terminé.')),
+    carte('Qui classe les lignes ?', ct ? H('div', {}, pile([['o', C.regle, 'Règles de mots-clés'], ['b', C.llm + C.simule, 'LLM (réel ou simulé)'], ['r', C.a_classer, 'À classer (arbitrage)']]),
+      tab(['Source', 'Lignes', 'Part'], [['Règles de mots-clés', C.regle, pct(C.regle, ct, 1)], ['LLM (réel ou simulé)', C.llm + C.simule, pct(C.llm + C.simule, ct, 1)], ['À classer (arbitrage humain)', C.a_classer, pct(C.a_classer, ct, 1)], ['Doublons écartés (hors total)', C.doublons, '']], [1, 2]),
+      H('div', { class: 'note' }, 'Principe : le LLM ne traite que le résidu que les règles ne savent pas classer ; sous le seuil de confiance, la ligne est escaladée.')) : H('div', { class: 'vide' }, 'Pas de lignes classées.')),
+    carte('Pour alimenter ces statistiques', H('div', {}, 'Lancez la rafale (bouton en haut) ou des scénarios depuis « Démo en direct ». Pour des centaines de scénarios, utilisez le banc d’essai (résultats dans l’onglet « Évaluation »).'))));
+  return sortie;
+}
+
+/* ---------- agents ---------- */
+function vAg() {
+  const lignes = AGENTS.filter(k => P.agents[k]).map(k => {
+    const a = P.agents[k];
+    return { clic: null, ligne: [H('b', {}, k), META[k].nom, pct(a.n, P.runs.n), pile([['o', a.ok, 'OK'], ['r', a.res, 'Réserve'], ['s', a.stop, 'Arrêt']]), ms(a.p50 * 1000), ms(a.p90 * 1000), ms(a.max * 1000), spark(a.serie), a.motifs.length ? H('small', {}, a.motifs.map(([m, n]) => `${n}× ${sup(m, 60)}`).join(' · ')) : H('small', {}, '—')] };
+  });
+  const c = Object.entries(P.controles);
+  const sortie = [H('div', { class: 'legende' }, H('span', {}, H('i', { style: 'background:var(--ok)' }), 'OK'), H('span', {}, H('i', { style: 'background:var(--reserve)' }), 'Réserve / arbitrage'), H('span', {}, H('i', { style: 'background:var(--stop)' }), 'Arrêt')),
+    carte('Performance par agent (tous passages)', tab(['', 'Agent', 'Atteint', 'Issues', 'p50', 'p90', 'max', 'Durées (30 derniers)', 'Motifs d’arrêt ou de réserve'], lignes.map(l => l.ligne), [4, 5, 6])),
+    H('div', { class: 'note' }, '« Atteint » = part des passages qui sont arrivés jusqu’à l’agent : un arrêt en A1 ou A2 empêche les agents suivants de s’exécuter.'),
+    H('div', { class: 'grille' },
+      carte('Contrôles indépendants d’A6 (taux de réussite)', c.length ? tab(['', 'Contrôle', 'Libellé', 'Réussite'], c.map(([id, z]) => [z.ok === z.n ? '✓' : '⚠', id, sup(z.libelle, 52), `${z.ok} / ${z.n}`]), [3]) : H('div', { class: 'vide' }, 'A6 n’a pas encore tourné.')),
+      carte('Durée médiane par agent', barresH(AGENTS.filter(k => P.agents[k]).map(k => [k, P.agents[k].p50 * 1000]), { fmt: ms })))];
+  return sortie;
+}
+
+/* ---------- LLM ---------- */
+function vLlm() {
+  const L = P.llm;
+  if (!L.length) return [H('div', { class: 'carte vide' }, 'Aucun appel LLM enregistré. Lancez un scénario : les appels de A3, A5, A7 et A8 (simulés ou réels) apparaîtront ici.')];
+  const lig = L.map(g => [H('b', {}, g.agent), g.modele, g.mode === 'reel' ? 'réel' : 'simulé', g.n, g.erreurs ? `⚠ ${g.erreurs}` : '0', ms(g.p50), ms(g.p95), (g.estimes ? '≈ ' : '') + nb(g.tok_in) + ' / ' + nb(g.tok_out), usd(g.cout), g.conf_moy != null ? num(g.conf_moy, 2) : '—', g.avec_decision ? pct(g.acceptes, g.avec_decision) : '—']);
+  const hist = P.confiance, mx = Math.max(...hist, 1), sv = S('svg', { viewBox: '0 0 360 120', role: 'img', 'aria-label': 'Distribution des confiances des classements LLM' });
+  hist.forEach((v, i) => sv.append(S('rect', { x: 10 + i * 34, y: 100 - v / mx * 80, width: 28, height: Math.max(1, v / mx * 80), rx: 3, fill: i >= 8 ? 'var(--ok)' : 'var(--attente)' }), S('text', { x: 24 + i * 34, y: 114, 'text-anchor': 'middle', style: 'font-size:10px' }, (i / 10).toFixed(1).replace('.', ',')), v ? S('text', { x: 24 + i * 34, y: 96 - v / mx * 80, 'text-anchor': 'middle', style: 'font-size:10px' }, v) : null));
+  sv.append(S('line', { x1: 10 + 8 * 34 - 3, x2: 10 + 8 * 34 - 3, y1: 8, y2: 100, stroke: 'var(--stop)', 'stroke-dasharray': '4 3' }), S('text', { x: 10 + 8 * 34 - 8, y: 14, 'text-anchor': 'end', style: 'font-size:10px', fill: 'var(--stop)' }, 'seuil 0,8'));
+  const lat = L.map(g => [g.agent + (g.mode === 'reel' ? '' : ' (sim.)'), g.p50, g.mode === 'reel' ? 'var(--bleu)' : 'var(--attente)']);
+  const pp = P.llm_par_passage;
+  return [H('div', { class: 'note' }, 'Mode simulé : aucun appel réseau, mais les jetons et le coût sont projetés comme si le mode réel était actif (1 jeton ≈ 4 caractères). Les durées simulées ne sont donc PAS représentatives du modèle réel : lancez un passage en mode réel pour mesurer la latence de l’API. Tarifs indicatifs, modifiables dans suivi_llm.py.'),
+    carte('Appels par agent et par modèle', tab(['', 'Modèle', 'Mode', 'Appels', 'Erreurs', 'p50', 'p95', 'Jetons entrée / sortie', 'Coût', 'Confiance moy.', 'Acceptés'], lig, [3, 4, 5, 6, 7, 8, 9, 10])),
+    H('div', { class: 'grille' },
+      carte('Latence médiane par agent (bleu = réel, gris = simulé)', barresH(lat, { fmt: ms })),
+      carte('Confiance des classements LLM (A3)', sv, H('div', { class: 'note' }, 'Vert : au-dessus du seuil, la ligne est classée ; en dessous elle est escaladée à l’humain.')),
+      carte('Coût équivalent par passage', pp.length ? H('div', {}, spark(pp.map(x => x.cout), 300, 60), H('div', { class: 'note' }, `${pp.length} passage(s) — dernier : ${usd(pp[pp.length - 1].cout)} · ${pp[pp.length - 1].appels} appel(s)`)) : H('div', { class: 'vide' }, '—')))];
+}
+
+/* ---------- garde-fous ---------- */
+function vGar() {
+  const G = P.gardes, ref = P.llm;
+  const lig = G.map(g => [H('b', {}, g.agent), g.garde, g.n, g.rejets ? `⚠ ${g.rejets}` : '0', pct(g.rejets, g.n, 1), g.raisons.length ? H('small', {}, g.raisons.map(([r, n]) => `${n}× ${sup(r, 60)}`).join(' · ')) : H('small', {}, '—')]);
+  const repli = ['A5', 'A7', 'RAG'].map(k => { const l = ref.filter(g => g.agent === k && g.mode === 'reel'); return l.length ? [k, l.reduce((s, g) => s + g.erreurs, 0), l.reduce((s, g) => s + g.n, 0)] : null; }).filter(Boolean);
+  return [H('div', { class: 'note' }, 'Le LLM ne calcule jamais : chaque production est vérifiée par un garde-fou déterministe (nombres absents des sources, référence inexistante, catégorie hors liste). Un rejet ramène à la version déterministe — rien d’inventé n’atteint le rapport.'),
+    carte('Garde-fous : contrôles et rejets', tab(['', 'Garde-fou', 'Vérifications', 'Rejets', 'Taux', 'Raisons principales'], lig, [2, 3, 4]),
+      H('div', { class: 'note' }, 'En mode simulé le « LLM » est un jeu de règles qui ne produit que des constats valides : les rejets (nombre inventé, référence inconnue) apparaissent surtout en mode réel, quand le modèle peut se tromper.')),
+    H('div', { class: 'grille' },
+      carte('Pannes du LLM (repli automatique)', repli.length ? tab(['Agent', 'Appels en erreur', 'Appels'], repli, [1, 2]) : H('div', { class: 'vide' }, 'Aucun appel en mode réel : lancez un passage avec « LLM réel » pour mesurer les pannes. Le scénario « Chaos : le LLM est en panne » montre le repli sur les règles.')),
+      carte('Filtre de confiance du classement (A3)', (() => { const a = ref.filter(g => g.agent === 'A3'), n = a.reduce((x, g) => x + g.avec_decision, 0), ac = a.reduce((x, g) => x + g.acceptes, 0);
+        return n ? H('div', {}, pile([['o', ac, 'Acceptées (confiance ≥ seuil)'], ['r', n - ac, 'Escaladées']]), tab(['', 'Lignes'], [['Acceptées (≥ 0,8)', ac], ['Escaladées (< 0,8 ou catégorie hors liste)', n - ac]], [1])) : H('div', { class: 'vide' }, '—'); })()),
+      carte('Escalades vers l’humain', H('div', {}, tab(['', 'Lignes'], [['À classer (arbitrage)', P.classement.a_classer], ['Doublons écartés', P.classement.doublons]], [1]), H('div', { class: 'note' }, 'Le taux d’escalade mesure ce que le système refuse de deviner.'))))];
+}
+
+/* ---------- banc d'essai ---------- */
+function vBan() {
+  const B = P.bench;
+  if (!B) return [carte('Banc d’essai non trouvé', H('div', {}, 'Aucun résultat dans banc_essai/resultats/resultats.db. Lancez-le depuis la vue « Pilotage » ou en ligne de commande :'), H('pre', {}, 'python -m banc_essai.executeur --n 1000 --seed 7'))];
+  const v = Object.entries(B.verdicts).sort((a, b) => b[1] - a[1]), ok = B.verdicts.OK || 0, L = B.lignes, lt = L.ok + L.escaladees + L.mal_classees + L.perdues + L.fantomes;
+  return [H('div', { class: 'tuiles' }, tuile(nb(B.n), `scénarios exécutés (${B.lots} lot(s))`), tuile(pct(ok, B.n, 1), 'verdict « OK »'), tuile(B.duree_s.p50 != null ? num(B.duree_s.p50, 1) + ' s' : '—', 'durée médiane', 'p90 : ' + num(B.duree_s.p90, 1) + ' s'),
+    tuile(nb(L.mal_classees), 'lignes mal classées'), tuile(nb(L.surconfiance), 'lignes en surconfiance', 'Mal classées avec une confiance au-dessus du seuil : le défaut le plus dangereux'), tuile(nb(B.jetons.entree + B.jetons.sortie), 'jetons réels (mode réel)', B.modes.join(', '))),
+    H('div', { class: 'grille' },
+      carte('Verdicts', pile(v.map(([k, n]) => [k === 'OK' ? 'o' : (/ATTENDU|LIMITE|ESCAL/.test(k) ? 'r' : 's'), n, k])), tab(['Verdict', 'Scénarios', 'Part'], v.map(([k, n]) => [k, n, pct(n, B.n, 1)]), [1, 2])),
+      carte('Qualité du classement (lignes)', pile([['o', L.ok, 'Correctes'], ['r', L.escaladees, 'Escaladées'], ['s', L.mal_classees + L.perdues + L.fantomes, 'Erreurs']]), tab(['', 'Lignes'], [['Correctes', nb(L.ok)], ['Escaladées à l’humain', nb(L.escaladees)], ['Mal classées', nb(L.mal_classees)], ['Perdues', nb(L.perdues)], ['Fantômes (inventées)', nb(L.fantomes)]], [1])),
+      carte('Durée par agent (banc d’essai)', Object.keys(B.durees).length ? tab(['Agent', 'p50', 'p90'], Object.entries(B.durees).map(([a, d]) => [a, num(d.p50, 2) + ' s', num(d.p90, 2) + ' s']), [1, 2]) : H('div', { class: 'vide' }, '—')),
+      carte('Réussite par catégorie de test', tab(['Catégorie', 'Scénarios', 'OK', 'Taux'], B.par_categorie.map(c => [c.categorie, c.n, c.ok, pct(c.ok, c.n)]), [1, 2, 3])))];
+}
+
+/* ============ boucle LLM Ops (pages 4 et 5 du drawio) ============ */
+let runTrace = null;
+const ETAPES = [
+  ['trc', 'Trace', '1 trace par exécution'], ['obs', 'Observation', 'jetons · latence · erreurs'], ['eva', 'Évaluation', 'jeu figé · juge · tests'],
+  ['dia', 'Diagnostic', 'où et pourquoi ça a rompu'], ['por', 'Porte', 'aucune bascule sans éval.'], ['por', 'Publication', 'invite · modèle · top-k'],
+];
+function teteBoucle() {
+  const T = P.traces || [], R = P.runs, L = P.llm, coutTot = L.reduce((s, g) => s + g.cout, 0), erreurs = L.reduce((s, g) => s + g.erreurs, 0), appels = L.reduce((s, g) => s + g.n, 0);
+  const B = P.bench, RE = P.rag_eval, J = P.juge, D = P.diagnostic || { demo: [], agents: {}, bench: [] }, G = P.porte || { criteres: [], autorise: false }, pub = (P.publications || [])[0];
+  const pareto = Object.entries(D.agents).sort((a, b) => (b[1].stop + b[1].res) - (a[1].stop + a[1].res))[0];
+  const vals = [
+    `${R.n} passage(s) · ${appels} appel(s) LLM`,
+    `p50 ${R.duree_p50 != null ? num(R.duree_p50, 1) + ' s' : '—'} · ${usd(coutTot)} · ${erreurs} erreur(s)`,
+    `banc ${B ? pct(B.verdicts.OK || 0, B.n) : '—'} · RAG ${RE ? pct(RE.ok, RE.n) : '—'}${J ? ' · juge ' + num(Object.values(J.moy).reduce((a, b) => a + b, 0) / Object.values(J.moy).length, 1) + '/5' : ''}`,
+    pareto ? `${D.demo.length} passage(s) en défaut · surtout ${pareto[0]}` : 'aucun défaut',
+    G.autorise ? '✓ porte franchie' : `✕ bloquée (${G.criteres.filter(x => x.bloquant && x.ok !== true).length})`,
+    pub ? `dernière : ${pub.version} · ${pub.empreinte}` : 'aucune publication',
+  ];
+  const svg = S('svg', { viewBox: '0 0 1160 150', role: 'img', 'aria-label': 'Boucle d’amélioration LLM Ops : trace, observation, évaluation, diagnostic, porte de qualité, publication' });
+  svg.append(S('defs', {}, S('marker', { id: 'fl', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, S('path', { d: 'M0 0 L10 5 L0 10 z', fill: 'currentColor', opacity: .7 }))));
+  const W_ = 164, GAP = 28;
+  ETAPES.forEach(([k, t, sub], i) => {
+    const x = 10 + i * (W_ + GAP), bloque = (i === 4 && !G.autorise);
+    const g = S('g', { class: 'noeud' + (onglet === k && i !== 5 ? ' choisi' : ''), tabindex: 0, role: 'button', 'aria-label': t });
+    g.append(S('rect', { class: 'cadre', x, y: 14, width: W_, height: 86, rx: 10 }), S('rect', { x, y: 14, width: W_, height: 6, rx: 3, fill: i === 4 ? (G.autorise ? 'var(--ok)' : 'var(--stop)') : 'var(--bleu)' }),
+      S('text', { x: x + 12, y: 42, style: 'font-weight:700;font-size:15px' }, `${i + 1}. ${t}`), S('text', { x: x + 12, y: 58, class: 'att', style: 'font-size:11px' }, sub),
+      S('text', { x: x + 12, y: 82, style: 'font-size:11px;font-weight:600' }, sup(vals[i], 32)));
+    g.addEventListener('click', () => { onglet = k; rendre(); });
+    g.addEventListener('keydown', e => { if (e.key === 'Enter') { onglet = k; rendre(); } });
+    bulle(g, `<b>${t}</b><br>${vals[i]}`);
+    svg.append(g);
+    if (i < ETAPES.length - 1) svg.append(S('line', { x1: x + W_, y1: 57, x2: x + W_ + GAP, y2: 57, class: 'lien fait', 'marker-end': 'url(#fl)' }));
+  });
+  svg.append(S('path', { d: `M${10 + 5 * (W_ + GAP) + W_ / 2},100 L${10 + 5 * (W_ + GAP) + W_ / 2},130 L${10 + W_ / 2},130 L${10 + W_ / 2},102`, class: 'lien fait', style: 'stroke:var(--laiton)', 'marker-end': 'url(#fl)' }),
+    S('text', { x: 580, y: 124, 'text-anchor': 'middle', style: 'font-size:11.5px;font-weight:600' }, 'invites, règles de classement et paramètres améliorés → nouvelle exécution'));
+  return H('figure', {}, svg, H('figcaption', {}, 'Boucle d’amélioration de ton architecture (pages 4 et 5) : chaque exécution laisse une trace ; on l’observe et on l’évalue ; un diagnostic situe la rupture ; la porte de qualité bloque toute publication sans évaluation réussie. Cliquez sur une étape.'));
+}
+function vBoucle() { return [teteBoucle(), H('div', { style: 'height:12px' }), ...vSyn()]; }
+
+function vTrc() {
+  const T = P.traces || [];
+  if (!T.length) return [H('div', { class: 'carte vide' }, 'Aucune exécution tracée. Lancez un scénario ou la rafale.')];
+  if (!runTrace || !T.find(t => t.run_id === runTrace)) runTrace = T[0].run_id;
+  const cur = T.find(t => t.run_id === runTrace);
+  const lig = T.map(t => ({ clic: () => { runTrace = t.run_id; rendre(); }, ligne: [t.run_id === runTrace ? '▶' : '', sup(t.titre, 34), (t.debut || '').slice(11, 19), t.mode, H('span', {}, { ok: '✓ ', res: '⚠ ', stop: '✕ ' }[classe(t.issue)] || '', t.issue || '…'), t.appels, nb(t.tok), usd(t.cout), t.rejets || 0] }));
+  const et = cur.etapes.map(e => [{ ok: '✓', res: '⚠', stop: '✕' }[e.classe], H('b', {}, e.agent), e.statut, ms((e.duree || 0) * 1000), e.llm ? `${e.llm.n} · ${ms(e.llm.ms)}` : '—', e.llm ? nb(e.llm.tok_in + e.llm.tok_out) : '—', e.llm ? usd(e.llm.cout) : '—', H('small', {}, e.message)]);
+  return [H('div', { class: 'note' }, 'La trace est la piste d’audit : pour chaque agent, ce qui a été décidé, en combien de temps, avec quels appels LLM, quels jetons et quel coût. Cliquez sur un passage pour le détail.'),
+    carte('Dernières exécutions', tab(['', 'Scénario', 'Heure', 'Mode', 'Issue', 'Appels LLM', 'Jetons', 'Coût', 'Rejets'], lig, [5, 6, 7, 8])),
+    carte(`Trace de « ${cur.titre} »`, H('div', { class: 'note' }, cur.message || ''), tab(['', 'Agent', 'Statut', 'Durée', 'Appels · latence', 'Jetons', 'Coût', 'Décision / message'], et, [3, 5, 6]))];
+}
+
+function vObs() {
+  return [H('div', { class: 'note' }, 'Observation : durées, taux d’arrêt, appels LLM, jetons, latence, erreurs et coût, agent par agent.'), carte('Agents', ...vAg().slice(1, 3)), ...vLlm()];
+}
+
+function vEva() {
+  const B = P.bench, RE = P.rag_eval, J = P.juge, a6 = Object.entries(P.controles);
+  const out = [H('div', { class: 'note' }, 'Évaluation : jeu figé (banc d’essai), juge LLM, tests déterministes. Chaque arbitrage devrait devenir un cas de test : la couverture croît avec l’usage (cible, voir le processus cible).')];
+  out.push(H('div', { class: 'grille' },
+    carte('Jeu figé — banc d’essai', B ? H('div', {}, pile([['o', B.verdicts.OK || 0, 'OK'], ['s', B.n - (B.verdicts.OK || 0), 'Autres']]), tab(['', ''], [['Scénarios', nb(B.n)], ['Verdict OK', pct(B.verdicts.OK || 0, B.n, 1)], ['Lignes mal classées', nb(B.lignes.mal_classees)], ['Surconfiance', nb(B.lignes.surconfiance)], ['Fantômes', nb(B.lignes.fantomes)]], [1])) : H('div', { class: 'vide' }, 'Pas de banc d’essai : python -m banc_essai.executeur --n 1000 --seed 7')),
+    carte('Évaluation du RAG', RE ? H('div', {}, pile([['o', RE.ok, 'Réussies'], ['s', RE.n - RE.ok, 'Échecs']]), tab(['Type de question', 'Réussies'], Object.entries(RE.genres).map(([g, v]) => [(v.ok === v.n ? '✓ ' : '⚠ ') + g, `${v.ok} / ${v.n}`]), [1])) : H('div', { class: 'vide' }, 'Cliquez sur « Évaluer » dans le diagramme RAG.')),
+    carte('Juge LLM — notes de la relecture A8', J ? H('div', {}, tab(['Dimension', 'Moyenne /5', 'Pire note'], Object.entries(J.moy).map(([k, v]) => [k, num(v, 1), J.min[k]]), [1, 2]), H('div', { class: 'note' }, `Sur ${J.n} relecture(s). ` + (B && B.a8.total ? `Précision d’A8 au banc d’essai : ${B.a8.justes} / ${B.a8.total} réserves justes (${pct(B.a8.justes, B.a8.total)}).` : ''))) : H('div', { class: 'vide' }, 'A8 n’a pas encore noté de dossier.'))));
+  out.push(H('div', { class: 'grille' }, carte('Tests déterministes — contrôles A6', a6.length ? tab(['', 'Contrôle', 'Libellé', 'Réussite'], a6.map(([id, z]) => [z.ok === z.n ? '✓' : '⚠', id, sup(z.libelle, 52), `${z.ok} / ${z.n}`]), [3]) : H('div', { class: 'vide' }, '—')), ...vGar().slice(-1)));
+  return out;
+}
+
+function vDia() {
+  const D = P.diagnostic || { demo: [], agents: {}, bench: [] };
+  const pa = Object.entries(D.agents).sort((a, b) => (b[1].stop + b[1].res) - (a[1].stop + a[1].res));
+  return [H('div', { class: 'note' }, 'Diagnostic : où et pourquoi la chaîne a rompu. L’agent en cause est le dernier agent exécuté dont l’issue n’est pas « OK » ; le motif vient de son message.'),
+    H('div', { class: 'grille' }, carte('Agents en cause (démo)', pa.length ? H('div', {}, barresH(pa.map(([k, v]) => [k, v.stop + v.res]), { fmt: x => x + ' passage(s)' }), tab(['Agent', 'Arrêts', 'Arbitrages / réserves'], pa.map(([k, v]) => [k, v.stop, v.res]), [1, 2])) : H('div', { class: 'vide' }, 'Aucun défaut.')),
+      carte('Défauts du banc d’essai', D.bench.length ? tab(['Verdict', 'Scénario', 'Agent', 'Message'], D.bench.map(x => [x.verdict, sup(x.id, 34), x.agent || '—', H('small', {}, x.message)])) : H('div', { class: 'vide' }, P.bench ? 'Aucun défaut.' : 'Banc d’essai non joué.'))),
+    carte('Passages en défaut (démo)', D.demo.length ? tab(['', 'Scénario', 'Issue', 'Agent', 'Motif'], D.demo.map(x => [{ res: '⚠', stop: '✕' }[x.classe], sup(x.titre, 38), x.issue, x.agent, H('small', {}, x.motif)])) : H('div', { class: 'vide' }, 'Aucun passage en défaut.'))];
+}
+
+async function publier() { const r = await api('/api/diag/perf/publier', { note: $('#note_pub') ? $('#note_pub').value : '' }); $('#statut').textContent = r.ok ? `Publié : ${r.version} (${r.empreinte})` : `Refusé : ${r.erreur}`; charger(); }
+function vPor() {
+  const G = P.porte || { criteres: [], autorise: false }, C = P.config, fm = (c, v) => v == null ? '—' : c.fmt === 'pct' ? pct(v, 1, 1) : c.fmt === 's' ? num(v, 1) + ' s' : c.fmt === 'usd' ? usd(v) : String(v);
+  const lig = G.criteres.map(c => [c.ok === true ? '✓' : c.ok === false ? '✕' : '○', c.libelle + (c.bloquant ? '' : ' (indicatif)'), fm(c, c.valeur), (c.fmt === 'pct' ? '≥ ' : '≤ ') + fm(c, c.seuil), c.ok === true ? 'franchi' : c.ok === false ? 'échec' : 'non évalué', H('small', {}, c.note || '')]);
+  const cfg = C ? Object.entries(C.valeurs).map(([k, v]) => [H('b', {}, k), typeof v === 'object' ? Object.entries(v).map(([a, b]) => `${a} : ${Array.isArray(b) ? b.join(' / ') : b}`).join(' · ') : String(v)]) : [];
+  const pubs = P.publications || [];
+  return [H('div', { class: 'detail', style: `border-left-color:var(--${G.autorise ? 'ok' : 'stop'})` }, H('h2', {}, G.autorise ? '✓ Porte de qualité franchie — publication autorisée' : '✕ Porte de qualité bloquée — publication refusée'), H('div', {}, G.autorise ? 'Tous les critères bloquants sont satisfaits.' : 'Un critère bloquant échoue ou n’est pas encore évalué : « Aucune bascule sans évaluation réussie ».')),
+    carte('Critères de la porte', tab(['', 'Critère', 'Valeur', 'Seuil', 'Résultat', 'Pour le satisfaire'], lig)),
+    H('div', { class: 'grille' },
+      carte(`Configuration en vigueur · empreinte ${C ? C.empreinte : '—'}`, tab(['Composant', 'Paramètres'], cfg), H('div', { class: 'note' }, 'Ce qui est « publié » : modèles, seuil de confiance, paramètres du RAG. Un changement modifie l’empreinte et doit repasser la porte.'),
+        H('div', { class: 'ligne' }, H('input', { type: 'text', id: 'note_pub', placeholder: 'Note de publication (facultatif)', style: 'flex:1;min-width:180px' }), H('button', { class: 'principal', disabled: G.autorise ? null : '', onclick: publier }, 'Publier cette configuration'))),
+      carte('Registre des publications', pubs.length ? tab(['Version', 'Date', 'Empreinte', 'Note'], pubs.map(p => [H('b', {}, p.version), (p.ts || '').replace('T', ' ').slice(0, 19), p.empreinte, p.note || ''])) : H('div', { class: 'vide' }, 'Aucune publication.')))];
+}
+</script></body></html>

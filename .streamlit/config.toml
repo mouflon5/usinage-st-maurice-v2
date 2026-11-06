@@ -1,0 +1,10 @@
+# Identité visuelle de la démonstration Groupe Usinage Saint-Maurice (bleu acier). Streamlit lit ce fichier au démarrage
+# quand l'application est lancée depuis ce dossier (python lancer_demo.py).
+[theme]
+primaryColor = "#1f5f8b"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#eef3f8"
+textColor = "#1b2430"
+
+[browser]
+gatherUsageStats = false

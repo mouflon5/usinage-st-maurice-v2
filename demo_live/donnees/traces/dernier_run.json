@@ -1,0 +1,1336 @@
+{
+ "horodatage": "2026-11-01T08:55:15",
+ "compte": "CIBC 131088",
+ "periode": "2026-10",
+ "periode_debut": "2026-10",
+ "db_path": "C:\\Users\\Marco\\Desktop\\Bibliothèque\\Projets AI\\Projet python\\Agents\\orchestrateur_usinage_v2\\demo_live\\donnees\\base_demo.db",
+ "statut_pipeline": "a_arbitrer",
+ "message_pipeline": "Pipeline terminé, arbitrage humain requis. 67 écriture(s) chargée(s), 42 ligne(s) « À classer » à arbitrer par le contrôleur : « POS PURCHASE STARBUCKS #5516 » (-21.29 $); « POS PURCHASE BMR #8805 » (-162.67 $); « POS PURCHASE FEDEX #5364 » (-299.35 $); « POS PURCHASE HOME DEPOT #5641 » (-985.82 $); « POS PURCHASE FEDEX #5345 » (-761.77 $); « POS PURCHASE HOTEL DELTA TROIS-RIVIERES #507 » (-232.15 $); « POS PURCHASE PRINCESS AUTO #1488 » (-2,479.61 $); « POS PURCHASE ULTRAMAR #7815 » (-101.07 $); « POS PURCHASE HOME DEPOT #6314 » (-1,380.72 $); « POS PURCHASE ESSO #4749 » (-74.75 $); « POS PURCHASE HOTEL DELTA TROIS-RIVIERES #133 » (-371.74 $); « POS PURCHASE RONA #5532 » (-718.42 $); « POS PURCHASE HOME DEPOT #3542 » (-530.45 $); « POS PURCHASE TELUS #4763 » (-407.00 $); « POS PURCHASE ZOOM #9971 » (-87.41 $); « POS PURCHASE RONA #678 » (-1,072.40 $); « POS PURCHASE HOME DEPOT #6446 » (-1,118.86 $); « POS PURCHASE CANADIAN TIRE #9743 » (-795.99 $); « POS PURCHASE FEDEX #4275 » (-243.70 $); « POS PURCHASE COUCHE-TARD #1449 » (-18.98 $); « POS PURCHASE PETRO-CANADA #1532 » (-90.07 $); « POS PURCHASE ST-HUBERT #5290 » (-164.24 $); « POS PURCHASE PUROLATOR #9714 » (-470.32 $); « POS PURCHASE CANADIAN TIRE #5809 » (-84.02 $); « POS PURCHASE TELUS #3826 » (-720.30 $); « POS PURCHASE HOTEL DELTA TROIS-RIVIERES #437 » (-243.14 $); « POS PURCHASE FEDEX #1204 » (-1,476.29 $); « POS PURCHASE SUBWAY #8806 » (-20.99 $); « POS PURCHASE TIM HORTONS #6336 » (-39.71 $); « POS PURCHASE MICROSOFT 365 #5697 » (-433.92 $); « POS PURCHASE RONA #4226 » (-142.88 $); « POS PURCHASE TELUS #7473 » (-379.58 $); « POS PURCHASE HOME DEPOT #9286 » (-1,026.73 $); « POS PURCHASE DICOM EXPRESS #6475 » (-409.37 $); « POS PURCHASE TIM HORTONS #2683 » (-35.39 $); « POS PURCHASE STARBUCKS #2921 » (-23.00 $); « POS PURCHASE COUCHE-TARD #9504 » (-98.20 $); « POS PURCHASE STARBUCKS #2179 » (-13.05 $); « POS PURCHASE DICOM EXPRESS #9525 » (-289.74 $); « POS PURCHASE COUCHE-TARD #3944 » (-51.74 $); « POS PURCHASE ZOOM #2714 » (-231.56 $); « POS PURCHASE DICOM EXPRESS #4005 » (-613.71 $).",
+ "mode_llm": "reel",
+ "agents": [
+  {
+   "id": "A1",
+   "nom": "Acquisition",
+   "statut": "complet",
+   "message": "Compte CIBC 131088 : 1 période(s) couverte(s), aucun trou détecté. Prêt pour A2 (Extraction)."
+  },
+  {
+   "id": "A2",
+   "nom": "Extraction",
+   "statut": "complet",
+   "message": "109 transaction(s) extraite(s) (format F3), aucune anomalie. Prêt pour A3."
+  },
+  {
+   "id": "A3",
+   "nom": "Réconciliation",
+   "statut": "a_arbitrer",
+   "message": "67 écriture(s) chargée(s), 42 ligne(s) « À classer » à arbitrer par le contrôleur : « POS PURCHASE STARBUCKS #5516 » (-21.29 $); « POS PURCHASE BMR #8805 » (-162.67 $); « POS PURCHASE FEDEX #5364 » (-299.35 $); « POS PURCHASE HOME DEPOT #5641 » (-985.82 $); « POS PURCHASE FEDEX #5345 » (-761.77 $); « POS PURCHASE HOTEL DELTA TROIS-RIVIERES #507 » (-232.15 $); « POS PURCHASE PRINCESS AUTO #1488 » (-2,479.61 $); « POS PURCHASE ULTRAMAR #7815 » (-101.07 $); « POS PURCHASE HOME DEPOT #6314 » (-1,380.72 $); « POS PURCHASE ESSO #4749 » (-74.75 $); « POS PURCHASE HOTEL DELTA TROIS-RIVIERES #133 » (-371.74 $); « POS PURCHASE RONA #5532 » (-718.42 $); « POS PURCHASE HOME DEPOT #3542 » (-530.45 $); « POS PURCHASE TELUS #4763 » (-407.00 $); « POS PURCHASE ZOOM #9971 » (-87.41 $); « POS PURCHASE RONA #678 » (-1,072.40 $); « POS PURCHASE HOME DEPOT #6446 » (-1,118.86 $); « POS PURCHASE CANADIAN TIRE #9743 » (-795.99 $); « POS PURCHASE FEDEX #4275 » (-243.70 $); « POS PURCHASE COUCHE-TARD #1449 » (-18.98 $); « POS PURCHASE PETRO-CANADA #1532 » (-90.07 $); « POS PURCHASE ST-HUBERT #5290 » (-164.24 $); « POS PURCHASE PUROLATOR #9714 » (-470.32 $); « POS PURCHASE CANADIAN TIRE #5809 » (-84.02 $); « POS PURCHASE TELUS #3826 » (-720.30 $); « POS PURCHASE HOTEL DELTA TROIS-RIVIERES #437 » (-243.14 $); « POS PURCHASE FEDEX #1204 » (-1,476.29 $); « POS PURCHASE SUBWAY #8806 » (-20.99 $); « POS PURCHASE TIM HORTONS #6336 » (-39.71 $); « POS PURCHASE MICROSOFT 365 #5697 » (-433.92 $); « POS PURCHASE RONA #4226 » (-142.88 $); « POS PURCHASE TELUS #7473 » (-379.58 $); « POS PURCHASE HOME DEPOT #9286 » (-1,026.73 $); « POS PURCHASE DICOM EXPRESS #6475 » (-409.37 $); « POS PURCHASE TIM HORTONS #2683 » (-35.39 $); « POS PURCHASE STARBUCKS #2921 » (-23.00 $); « POS PURCHASE COUCHE-TARD #9504 » (-98.20 $); « POS PURCHASE STARBUCKS #2179 » (-13.05 $); « POS PURCHASE DICOM EXPRESS #9525 » (-289.74 $); « POS PURCHASE COUCHE-TARD #3944 » (-51.74 $); « POS PURCHASE ZOOM #2714 » (-231.56 $); « POS PURCHASE DICOM EXPRESS #4005 » (-613.71 $)."
+  },
+  {
+   "id": "A4",
+   "nom": "Prévision",
+   "statut": null,
+   "message": null
+  },
+  {
+   "id": "A5",
+   "nom": "Écarts",
+   "statut": null,
+   "message": null
+  },
+  {
+   "id": "A6",
+   "nom": "Contrôle",
+   "statut": null,
+   "message": null
+  },
+  {
+   "id": "A8",
+   "nom": "Relecture",
+   "statut": "ok",
+   "message": "Relecture llm : 0 réserve(s), 0 remarque(s)."
+  },
+  {
+   "id": "A7",
+   "nom": "Reporting",
+   "statut": null,
+   "message": null
+  }
+ ],
+ "transactions": [
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-01",
+   "description": "DEPOSIT FACTURE USINAGE - KRUGER TROIS-RIVIE",
+   "montant": 260482.06,
+   "solde": 1134793.59
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-01",
+   "description": "BILL PAYMENT BDC - BANQUE DE DEVELOPPEMENT D",
+   "montant": -12632.74,
+   "solde": 1122160.85
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-01",
+   "description": "PREAUTH DEBIT FRET - TRANSPORT ROBERT FACT 6",
+   "montant": -11642.47,
+   "solde": 1110518.38
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-02",
+   "description": "BILL PAYMENT FRAIS BANCAIRES - DESJARDINS EN",
+   "montant": -3265.96,
+   "solde": 1107252.42
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-03",
+   "description": "POS PURCHASE STARBUCKS #5516",
+   "montant": -21.29,
+   "solde": 1107231.13
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-03",
+   "description": "BILL PAYMENT PAIE PRODUCTION - DEPOT DIRECT",
+   "montant": -166698.2,
+   "solde": 940532.93
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-03",
+   "description": "POS PURCHASE BMR #8805",
+   "montant": -162.67,
+   "solde": 940370.26
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-03",
+   "description": "POS PURCHASE KENNAMETAL CANADA #8257",
+   "montant": -2031.46,
+   "solde": 938338.8
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-03",
+   "description": "BILL PAYMENT SOUS-TRAITANCE - TRAITEMENT THE",
+   "montant": -52891.46,
+   "solde": 885447.34
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-04",
+   "description": "BILL PAYMENT FRET - TRANSPORT ROBERT FACT 76",
+   "montant": -10705.6,
+   "solde": 874741.74
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-04",
+   "description": "POS PURCHASE FEDEX #5364",
+   "montant": -299.35,
+   "solde": 874442.39
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-05",
+   "description": "PREAUTH DEBIT CREDIT-BAIL - DESJARDINS EQUIP",
+   "montant": -17912.27,
+   "solde": 856530.12
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-05",
+   "description": "POS PURCHASE HOME DEPOT #5641",
+   "montant": -985.82,
+   "solde": 855544.3
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-05",
+   "description": "BILL PAYMENT ERP - GENIUS ERP FACT 89143",
+   "montant": -3227.66,
+   "solde": 852316.64
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-06",
+   "description": "POS PURCHASE FEDEX #5345",
+   "montant": -761.77,
+   "solde": 851554.87
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-06",
+   "description": "POS PURCHASE HOTEL DELTA TROIS-RIVIERES #507",
+   "montant": -232.15,
+   "solde": 851322.72
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-06",
+   "description": "POS PURCHASE PRINCESS AUTO #1488",
+   "montant": -2479.61,
+   "solde": 848843.11
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-07",
+   "description": "BILL PAYMENT FRAIS BANCAIRES - DESJARDINS EN",
+   "montant": -3359.21,
+   "solde": 845483.9
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-07",
+   "description": "BILL PAYMENT BDC - BANQUE DE DEVELOPPEMENT D",
+   "montant": -15634.5,
+   "solde": 829849.4
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-07",
+   "description": "POS PURCHASE ULTRAMAR #7815",
+   "montant": -101.07,
+   "solde": 829748.33
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-07",
+   "description": "PREAUTH DEBIT DEPLACEMENT - AIR CANADA FACT",
+   "montant": -2196.96,
+   "solde": 827551.37
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "POS PURCHASE HOME DEPOT #6314",
+   "montant": -1380.72,
+   "solde": 826170.65
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "PREAUTH DEBIT MATIERES PREMIERES - ACIER RUS",
+   "montant": -44894.32,
+   "solde": 781276.33
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "DEPOSIT FACTURE USINAGE - KRUGER TROIS-RIVIE",
+   "montant": 318571.87,
+   "solde": 1099848.2
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "PREAUTH DEBIT MATIERES PREMIERES - ALCAN DIS",
+   "montant": -172959.66,
+   "solde": 926888.54
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "POS PURCHASE HOME DEPOT #1205",
+   "montant": -229.16,
+   "solde": 926659.38
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "PREAUTH DEBIT PAIE ADMINISTRATION - REMISES",
+   "montant": -31094.07,
+   "solde": 895565.31
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "BILL PAYMENT PUBLICITE - SALON INDUSTRIEL DE",
+   "montant": -4619.84,
+   "solde": 890945.47
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "PREAUTH DEBIT PAIE ADMINISTRATION - REMISES",
+   "montant": -43302.45,
+   "solde": 847643.02
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "DEPOSIT CONTRAT RECURRENT - BOMBARDIER AERO",
+   "montant": 107510.67,
+   "solde": 955153.69
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-09",
+   "description": "POS PURCHASE ESSO #4749",
+   "montant": -74.75,
+   "solde": 955078.94
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-09",
+   "description": "POS PURCHASE HOTEL DELTA TROIS-RIVIERES #133",
+   "montant": -371.74,
+   "solde": 954707.2
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-10",
+   "description": "POS PURCHASE RONA #5532",
+   "montant": -718.42,
+   "solde": 953988.78
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-10",
+   "description": "PREAUTH DEBIT PUBLICITE - SALON INDUSTRIEL D",
+   "montant": -6553.15,
+   "solde": 947435.63
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-10",
+   "description": "BILL PAYMENT PAIE ADMINISTRATION - REMISES R",
+   "montant": -59776.01,
+   "solde": 887659.62
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-10",
+   "description": "DEPOSIT CONTRAT RAIL - ALSTOM LA POCATIERE F",
+   "montant": 189959.69,
+   "solde": 1077619.31
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-11",
+   "description": "PREAUTH DEBIT PAIE ADMINISTRATION - REMISES",
+   "montant": -26430.0,
+   "solde": 1051189.31
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-11",
+   "description": "DEPOSIT FACTURE USINAGE - KRUGER TROIS-RIVIE",
+   "montant": 83777.12,
+   "solde": 1134966.43
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-11",
+   "description": "BILL PAYMENT HYDRO - HYDRO-QUEBEC TARIF M FA",
+   "montant": -32055.04,
+   "solde": 1102911.39
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-11",
+   "description": "POS PURCHASE HOME DEPOT #3542",
+   "montant": -530.45,
+   "solde": 1102380.94
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-12",
+   "description": "BILL PAYMENT TELECOM - VIDEOTRON AFFAIRES FA",
+   "montant": -3394.7,
+   "solde": 1098986.24
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-13",
+   "description": "POS PURCHASE KENNAMETAL CANADA #6091",
+   "montant": -3186.88,
+   "solde": 1095799.36
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-13",
+   "description": "PREAUTH DEBIT PAIE PRODUCTION - DEPOT DIRECT",
+   "montant": -157259.76,
+   "solde": 938539.6
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-13",
+   "description": "POS PURCHASE TELUS #4763",
+   "montant": -407.0,
+   "solde": 938132.6
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-13",
+   "description": "POS PURCHASE ZOOM #9971",
+   "montant": -87.41,
+   "solde": 938045.19
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-13",
+   "description": "POS PURCHASE RONA #678",
+   "montant": -1072.4,
+   "solde": 936972.79
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-14",
+   "description": "DEPOSIT FACTURE USINAGE - KRUGER TROIS-RIVIE",
+   "montant": 227746.14,
+   "solde": 1164718.93
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-15",
+   "description": "BILL PAYMENT TELECOM - VIDEOTRON AFFAIRES FA",
+   "montant": -4178.34,
+   "solde": 1160540.59
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-15",
+   "description": "DEPOSIT CONTRAT RAIL - ALSTOM LA POCATIERE F",
+   "montant": 42096.9,
+   "solde": 1202637.49
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-16",
+   "description": "POS PURCHASE HOME DEPOT #6446",
+   "montant": -1118.86,
+   "solde": 1201518.63
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-16",
+   "description": "POS PURCHASE CANADIAN TIRE #9743",
+   "montant": -795.99,
+   "solde": 1200722.64
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-16",
+   "description": "POS PURCHASE FEDEX #4275",
+   "montant": -243.7,
+   "solde": 1200478.94
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-16",
+   "description": "POS PURCHASE COUCHE-TARD #1449",
+   "montant": -18.98,
+   "solde": 1200459.96
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-17",
+   "description": "POS PURCHASE PETRO-CANADA #1532",
+   "montant": -90.07,
+   "solde": 1200369.89
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-17",
+   "description": "POS PURCHASE ST-HUBERT #5290",
+   "montant": -164.24,
+   "solde": 1200205.65
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-17",
+   "description": "POS PURCHASE ESSO #5700",
+   "montant": -93.09,
+   "solde": 1200112.56
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-17",
+   "description": "PREAUTH DEBIT MATIERES PREMIERES - ACIER RUS",
+   "montant": -124734.34,
+   "solde": 1075378.22
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-17",
+   "description": "POS PURCHASE PUROLATOR #9714",
+   "montant": -470.32,
+   "solde": 1074907.9
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-18",
+   "description": "POS PURCHASE CANADIAN TIRE #5809",
+   "montant": -84.02,
+   "solde": 1074823.88
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-18",
+   "description": "DEPOSIT PROTOTYPAGE - INNOVATION MAURICIE FA",
+   "montant": 56724.35,
+   "solde": 1131548.23
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "POS PURCHASE TELUS #3826",
+   "montant": -720.3,
+   "solde": 1130827.93
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "POS PURCHASE HOTEL DELTA TROIS-RIVIERES #437",
+   "montant": -243.14,
+   "solde": 1130584.79
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "DEPOSIT PROTOTYPAGE - INNOVATION MAURICIE FA",
+   "montant": 74048.62,
+   "solde": 1204633.41
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "BILL PAYMENT HONORAIRES - RAYMOND CHABOT GRA",
+   "montant": -4539.49,
+   "solde": 1200093.92
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "POS PURCHASE KENNAMETAL CANADA #3134",
+   "montant": -1414.92,
+   "solde": 1198679.0
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "DEPOSIT FACTURE USINAGE - KRUGER TROIS-RIVIE",
+   "montant": 113369.85,
+   "solde": 1312048.85
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "BILL PAYMENT ASSURANCE - INTACT ASSURANCE EN",
+   "montant": -6805.62,
+   "solde": 1305243.23
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "POS PURCHASE FEDEX #1204",
+   "montant": -1476.29,
+   "solde": 1303766.94
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-20",
+   "description": "PREAUTH DEBIT PAIE ADMINISTRATION - REMISES",
+   "montant": -55490.25,
+   "solde": 1248276.69
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-20",
+   "description": "DEPOSIT FACTURE USINAGE - ARCELORMITTAL CONT",
+   "montant": 206417.12,
+   "solde": 1454693.81
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-20",
+   "description": "POS PURCHASE VIDEOTRON #8761",
+   "montant": -485.15,
+   "solde": 1454208.66
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-21",
+   "description": "PREAUTH DEBIT SOUS-TRAITANCE - TRAITEMENT TH",
+   "montant": -23401.94,
+   "solde": 1430806.72
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-21",
+   "description": "POS PURCHASE NORMANDIN #8782",
+   "montant": -103.69,
+   "solde": 1430703.03
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-22",
+   "description": "PREAUTH DEBIT MATIERES PREMIERES - METAUX SO",
+   "montant": -55846.78,
+   "solde": 1374856.25
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-23",
+   "description": "POS PURCHASE SUBWAY #8806",
+   "montant": -20.99,
+   "solde": 1374835.26
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-23",
+   "description": "POS PURCHASE TIM HORTONS #6336",
+   "montant": -39.71,
+   "solde": 1374795.55
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-23",
+   "description": "PREAUTH DEBIT PAIE PRODUCTION - DEPOT DIRECT",
+   "montant": -138979.87,
+   "solde": 1235815.68
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-23",
+   "description": "POS PURCHASE MICROSOFT 365 #5697",
+   "montant": -433.92,
+   "solde": 1235381.76
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-24",
+   "description": "POS PURCHASE RONA #4226",
+   "montant": -142.88,
+   "solde": 1235238.88
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-24",
+   "description": "POS PURCHASE SANDVIK COROMANT #9187",
+   "montant": -5721.85,
+   "solde": 1229517.03
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-24",
+   "description": "POS PURCHASE TELUS #7473",
+   "montant": -379.58,
+   "solde": 1229137.45
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-25",
+   "description": "DEPOSIT RECUPERATION - AMERICAN IRON & METAL",
+   "montant": 14982.4,
+   "solde": 1244119.85
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-25",
+   "description": "PREAUTH DEBIT FRET - TRANSPORT ROBERT FACT 7",
+   "montant": -5159.59,
+   "solde": 1238960.26
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-25",
+   "description": "POS PURCHASE HOME DEPOT #9286",
+   "montant": -1026.73,
+   "solde": 1237933.53
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-25",
+   "description": "POS PURCHASE DICOM EXPRESS #6475",
+   "montant": -409.37,
+   "solde": 1237524.16
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-25",
+   "description": "PREAUTH DEBIT PAIE ADMINISTRATION - REMISES",
+   "montant": -29923.47,
+   "solde": 1207600.69
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-26",
+   "description": "POS PURCHASE SANDVIK COROMANT #1023",
+   "montant": -1162.15,
+   "solde": 1206438.54
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-26",
+   "description": "PREAUTH DEBIT DEPLACEMENT - AIR CANADA FACT",
+   "montant": -2226.29,
+   "solde": 1204212.25
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-26",
+   "description": "BILL PAYMENT OUTILLAGE - KENNAMETAL CANADA F",
+   "montant": -21902.44,
+   "solde": 1182309.81
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-26",
+   "description": "PREAUTH DEBIT PAIE ADMINISTRATION - REMISES",
+   "montant": -38772.18,
+   "solde": 1143537.63
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-27",
+   "description": "POS PURCHASE TIM HORTONS #2683",
+   "montant": -35.39,
+   "solde": 1143502.24
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-27",
+   "description": "PREAUTH DEBIT PUBLICITE - SALON INDUSTRIEL D",
+   "montant": -3691.86,
+   "solde": 1139810.38
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-27",
+   "description": "POS PURCHASE STARBUCKS #2921",
+   "montant": -23.0,
+   "solde": 1139787.38
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-28",
+   "description": "POS PURCHASE COUCHE-TARD #9504",
+   "montant": -98.2,
+   "solde": 1139689.18
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-28",
+   "description": "DEPOSIT FACTURE USINAGE - ARCELORMITTAL CONT",
+   "montant": 129837.07,
+   "solde": 1269526.25
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-28",
+   "description": "POS PURCHASE STARBUCKS #2179",
+   "montant": -13.05,
+   "solde": 1269513.2
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-28",
+   "description": "BILL PAYMENT BDC - BANQUE DE DEVELOPPEMENT D",
+   "montant": -14271.49,
+   "solde": 1255241.71
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-28",
+   "description": "POS PURCHASE DICOM EXPRESS #9525",
+   "montant": -289.74,
+   "solde": 1254951.97
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-28",
+   "description": "BILL PAYMENT FRET - GROUPE MORNEAU FACT 6202",
+   "montant": -20764.62,
+   "solde": 1234187.35
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-29",
+   "description": "BILL PAYMENT PAIE PRODUCTION - DEPOT DIRECT",
+   "montant": -178750.36,
+   "solde": 1055436.99
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-29",
+   "description": "BILL PAYMENT PUBLICITE - SALON INDUSTRIEL DE",
+   "montant": -3667.45,
+   "solde": 1051769.54
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-29",
+   "description": "BILL PAYMENT SOUS-TRAITANCE - GALVANISATION",
+   "montant": -21957.86,
+   "solde": 1029811.68
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-29",
+   "description": "POS PURCHASE BELL MOBILITE #4765",
+   "montant": -423.04,
+   "solde": 1029388.64
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-30",
+   "description": "POS PURCHASE COUCHE-TARD #3944",
+   "montant": -51.74,
+   "solde": 1029336.9
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-31",
+   "description": "POS PURCHASE ZOOM #2714",
+   "montant": -231.56,
+   "solde": 1029105.34
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-31",
+   "description": "BILL PAYMENT HYDRO - HYDRO-QUEBEC TARIF M FA",
+   "montant": -45389.5,
+   "solde": 983715.84
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-31",
+   "description": "POS PURCHASE DICOM EXPRESS #4005",
+   "montant": -613.71,
+   "solde": 983102.13
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-31",
+   "description": "DEPOSIT RECUPERATION - AMERICAN IRON & METAL",
+   "montant": 21828.93,
+   "solde": 1004931.06
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-31",
+   "description": "POS PURCHASE ESSO #2239",
+   "montant": -105.56,
+   "solde": 1004825.5
+  }
+ ],
+ "resume_a3": {
+  "inseres_staging": 109,
+  "promus_journal_general": 67,
+  "doublons_ignores": 0,
+  "a_classer": 42,
+  "par_methode": {
+   "regle": 56,
+   "llm": 11
+  }
+ },
+ "residu_a3": [
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-03",
+   "description": "POS PURCHASE STARBUCKS #5516",
+   "montant": -21.29,
+   "solde": 1107231.13,
+   "cle_doublon": "2026-10-03|-21.29|POS PURCHASE STARBUCKS #5516",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense personnelle liée à un achat de café, elle ne correspond à aucune des catégories fournies qui sont liées à l'activité commerciale de la PME."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-03",
+   "description": "POS PURCHASE BMR #8805",
+   "montant": -162.67,
+   "solde": 940370.26,
+   "cle_doublon": "2026-10-03|-162.67|POS PURCHASE BMR #8805",
+   "suggestion": "Intérêts et frais bancaires (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction 'POS PURCHASE BMR #8805' est une sortie de fonds qui correspond le plus probablement aux frais bancaires ou d'intérêts liés à la gestion bancaire de la société."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-04",
+   "description": "POS PURCHASE FEDEX #5364",
+   "montant": -299.35,
+   "solde": 874442.39,
+   "cle_doublon": "2026-10-04|-299.35|POS PURCHASE FEDEX #5364",
+   "suggestion": "Fret et transport (Variable)",
+   "confiance": 1.0,
+   "justification": "Cette transaction est une sortie de fonds liée à la compagnie FedEx, donc elle relève du fret et du transport."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-05",
+   "description": "POS PURCHASE HOME DEPOT #5641",
+   "montant": -985.82,
+   "solde": 855544.3,
+   "cle_doublon": "2026-10-05|-985.82|POS PURCHASE HOME DEPOT #5641",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense personnelle liée à un achat dans Home Depot, donc elle ne correspond à aucune des catégories fournies pour le plan de classement de Groupe Usinage Saint-Maurice."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-06",
+   "description": "POS PURCHASE FEDEX #5345",
+   "montant": -761.77,
+   "solde": 851554.87,
+   "cle_doublon": "2026-10-06|-761.77|POS PURCHASE FEDEX #5345",
+   "suggestion": "Fret et transport (Variable)",
+   "confiance": 1.0,
+   "justification": "Cette transaction est une sortie de fonds liée à la compagnie FedEx, donc elle relève du fret et du transport."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-06",
+   "description": "POS PURCHASE HOTEL DELTA TROIS-RIVIERES #507",
+   "montant": -232.15,
+   "solde": 851322.72,
+   "cle_doublon": "2026-10-06|-232.15|POS PURCHASE HOTEL DELTA TROIS-RIVIERES #507",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense liée à un hôtel, ce qui ne correspond à aucune des catégories fournies qui sont spécifiquement liées à l'activité de Groupe Usinage Saint-Maurice. Elle ne semble pas être directement liée à l'usinage ou aux revenus générés par l'entreprise."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-06",
+   "description": "POS PURCHASE PRINCESS AUTO #1488",
+   "montant": -2479.61,
+   "solde": 848843.11,
+   "cle_doublon": "2026-10-06|-2479.61|POS PURCHASE PRINCESS AUTO #1488",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense liée à un achat effectué chez Princess Auto, une entreprise de vente de produits automobiles et de bricolage. Cependant, sans plus de contexte sur les produits ou services achetés, il est difficile de la rattacher à l'une des catégories fournies. Elle ne semble pas directement liée aux activités principales du groupe Usinage Saint-Maurice."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-07",
+   "description": "POS PURCHASE ULTRAMAR #7815",
+   "montant": -101.07,
+   "solde": 829748.33,
+   "cle_doublon": "2026-10-07|-101.07|POS PURCHASE ULTRAMAR #7815",
+   "suggestion": "Intérêts et frais bancaires (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction 'POS PURCHASE ULTRAMAR #7815' correspond à une sortie de fonds qui est généralement associée aux frais bancaires ou aux intérêts, ce qui concorde avec la catégorie 'Intérêts et frais bancaires'."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-08",
+   "description": "POS PURCHASE HOME DEPOT #6314",
+   "montant": -1380.72,
+   "solde": 826170.65,
+   "cle_doublon": "2026-10-08|-1380.72|POS PURCHASE HOME DEPOT #6314",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense personnelle liée à un achat dans Home Depot, donc elle ne correspond à aucune des catégories fournies pour le plan de classement de Groupe Usinage Saint-Maurice."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-09",
+   "description": "POS PURCHASE ESSO #4749",
+   "montant": -74.75,
+   "solde": 955078.94,
+   "cle_doublon": "2026-10-09|-74.75|POS PURCHASE ESSO #4749",
+   "suggestion": "Fret et transport (Variable)",
+   "confiance": 1.0,
+   "justification": "Cette transaction représente une dépense liée à l'essence pour le transport, ce qui entre dans la catégorie 'Fret et transport'."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-09",
+   "description": "POS PURCHASE HOTEL DELTA TROIS-RIVIERES #133",
+   "montant": -371.74,
+   "solde": 954707.2,
+   "cle_doublon": "2026-10-09|-371.74|POS PURCHASE HOTEL DELTA TROIS-RIVIERES #133",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense liée à un hôtel, ce qui ne correspond à aucune des catégories fournies qui sont spécifiquement liées à l'activité de Groupe Usinage Saint-Maurice. Elle ne semble pas être directement liée à l'usinage ou aux revenus générés par l'entreprise."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-10",
+   "description": "POS PURCHASE RONA #5532",
+   "montant": -718.42,
+   "solde": 953988.78,
+   "cle_doublon": "2026-10-10|-718.42|POS PURCHASE RONA #5532",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense liée à l'achat de matériaux ou de consommables, mais sans plus de contexte, il est difficile de la situer précisément parmi les catégories fournies."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-11",
+   "description": "POS PURCHASE HOME DEPOT #3542",
+   "montant": -530.45,
+   "solde": 1102380.94,
+   "cle_doublon": "2026-10-11|-530.45|POS PURCHASE HOME DEPOT #3542",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense personnelle liée à un achat dans Home Depot, donc elle ne correspond à aucune des catégories fournies pour le plan de classement de Groupe Usinage Saint-Maurice."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-13",
+   "description": "POS PURCHASE TELUS #4763",
+   "montant": -407.0,
+   "solde": 938132.6,
+   "cle_doublon": "2026-10-13|-407.0|POS PURCHASE TELUS #4763",
+   "suggestion": "Télécommunications, ERP et TI (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction mentionne 'TELUS', qui est une entreprise de télécommunications. Cette dépense est donc logiquement classée dans la catégorie 'Télécommunications, ERP et TI'."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-13",
+   "description": "POS PURCHASE ZOOM #9971",
+   "montant": -87.41,
+   "solde": 938045.19,
+   "cle_doublon": "2026-10-13|-87.41|POS PURCHASE ZOOM #9971",
+   "suggestion": "Intérêts et frais bancaires (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction 'POS PURCHASE ZOOM #9971' pour -87.41 $ correspond le plus probablement à des intérêts ou des frais bancaires, qui sont classés comme des coûts fixes dans la liste de catégories fournies."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-13",
+   "description": "POS PURCHASE RONA #678",
+   "montant": -1072.4,
+   "solde": 936972.79,
+   "cle_doublon": "2026-10-13|-1072.4|POS PURCHASE RONA #678",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense liée à l'achat de matériaux ou de consommables, mais sans contexte supplémentaire, il est difficile de la rattacher précisément à l'une des catégories fournies."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-16",
+   "description": "POS PURCHASE HOME DEPOT #6446",
+   "montant": -1118.86,
+   "solde": 1201518.63,
+   "cle_doublon": "2026-10-16|-1118.86|POS PURCHASE HOME DEPOT #6446",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense personnelle liée à un achat dans Home Depot, donc elle ne correspond à aucune des catégories fournies pour le plan de classement de Groupe Usinage Saint-Maurice."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-16",
+   "description": "POS PURCHASE CANADIAN TIRE #9743",
+   "montant": -795.99,
+   "solde": 1200722.64,
+   "cle_doublon": "2026-10-16|-795.99|POS PURCHASE CANADIAN TIRE #9743",
+   "suggestion": "Autres revenus (récupération de métaux) (Revenu)",
+   "confiance": 0.9,
+   "justification": "La transaction mentionne Canadian Tire, qui est une entreprise de vente de matériaux de construction et de réparation. Cette transaction pourrait être liée à la vente de métaux récupérés, ce qui correspond à la catégorie 'Autres revenus (récupération de métaux)'."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-16",
+   "description": "POS PURCHASE FEDEX #4275",
+   "montant": -243.7,
+   "solde": 1200478.94,
+   "cle_doublon": "2026-10-16|-243.7|POS PURCHASE FEDEX #4275",
+   "suggestion": "Fret et transport (Variable)",
+   "confiance": 1.0,
+   "justification": "Cette transaction est une sortie de fonds liée à la compagnie FedEx, donc elle relève du fret et du transport."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-16",
+   "description": "POS PURCHASE COUCHE-TARD #1449",
+   "montant": -18.98,
+   "solde": 1200459.96,
+   "cle_doublon": "2026-10-16|-18.98|POS PURCHASE COUCHE-TARD #1449",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être un achat effectué par l'entreprise chez Couche-Tard, mais elle ne correspond à aucune des catégories fournies. Elle ne semble pas être directement liée aux activités commerciales principales du groupe, donc elle est difficile à classer avec certitude."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-17",
+   "description": "POS PURCHASE PETRO-CANADA #1532",
+   "montant": -90.07,
+   "solde": 1200369.89,
+   "cle_doublon": "2026-10-17|-90.07|POS PURCHASE PETRO-CANADA #1532",
+   "suggestion": "Intérêts et frais bancaires (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction mentionne 'POS PURCHASE PETRO-CANADA', ce qui suggère une dépense liée à un achat. Cependant, le montant négatif et la nature de la transaction indiquent une sortie de fonds, ce qui est plus compatible avec des frais bancaires ou des intérêts. Dans le contexte des transactions similaires classées comme 'Remboursement emprunt équipement (BDC)', il est plus probable qu'il s'agisse d'intérêts et frais bancaires."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-17",
+   "description": "POS PURCHASE ST-HUBERT #5290",
+   "montant": -164.24,
+   "solde": 1200205.65,
+   "cle_doublon": "2026-10-17|-164.24|POS PURCHASE ST-HUBERT #5290",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense de性质原因，请您提供更多的背景信息，以便我能够准确理解您的问题并给出合适的回答。您提到的“POS PURCHASE ST-HUBERT #5290”看起来像是一个POS机购买或使用St-Hubert品牌的交易，但没有足够的信息将其归入给定的分类列表中。"
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-17",
+   "description": "POS PURCHASE PUROLATOR #9714",
+   "montant": -470.32,
+   "solde": 1074907.9,
+   "cle_doublon": "2026-10-17|-470.32|POS PURCHASE PUROLATOR #9714",
+   "suggestion": "Fret et transport (Variable)",
+   "confiance": 1.0,
+   "justification": "La transaction mentionne 'PUROLATOR', qui est une entreprise de transport et de logistique. Cette transaction semble être un paiement pour un service de transport ou fret, donc elle correspond bien à la catégorie 'Fret et transport (Variable)'."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-18",
+   "description": "POS PURCHASE CANADIAN TIRE #5809",
+   "montant": -84.02,
+   "solde": 1074823.88,
+   "cle_doublon": "2026-10-18|-84.02|POS PURCHASE CANADIAN TIRE #5809",
+   "suggestion": "Autres revenus (récupération de métaux) (Revenu)",
+   "confiance": 0.95,
+   "justification": "La transaction mentionne Canadian Tire, qui est une entreprise de vente de matériaux de construction et de bricolage. Cela suggère qu'il s'agit probablement d'un remboursement pour la vente de métaux récupérés, qui correspond à la catégorie 'Autres revenus (récupération de métaux)'."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "POS PURCHASE TELUS #3826",
+   "montant": -720.3,
+   "solde": 1130827.93,
+   "cle_doublon": "2026-10-19|-720.3|POS PURCHASE TELUS #3826",
+   "suggestion": "Télécommunications, ERP et TI (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction mentionne 'TELUS', qui est une entreprise de télécommunications. Cette dépense est donc logiquement classée dans la catégorie 'Télécommunications, ERP et TI'."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "POS PURCHASE HOTEL DELTA TROIS-RIVIERES #437",
+   "montant": -243.14,
+   "solde": 1130584.79,
+   "cle_doublon": "2026-10-19|-243.14|POS PURCHASE HOTEL DELTA TROIS-RIVIERES #437",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense liée à un hôtel, ce qui ne correspond à aucune des catégories fournies qui sont spécifiquement liées à l'activité de Groupe Usinage Saint-Maurice. Elle ne semble pas être directement liée à l'usinage ou aux revenus générés par l'entreprise."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-19",
+   "description": "POS PURCHASE FEDEX #1204",
+   "montant": -1476.29,
+   "solde": 1303766.94,
+   "cle_doublon": "2026-10-19|-1476.29|POS PURCHASE FEDEX #1204",
+   "suggestion": "Fret et transport (Variable)",
+   "confiance": 1.0,
+   "justification": "Cette transaction est une sortie de fonds liée à la compagnie FedEx, donc elle relève du fret et du transport."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-23",
+   "description": "POS PURCHASE SUBWAY #8806",
+   "montant": -20.99,
+   "solde": 1374835.26,
+   "cle_doublon": "2026-10-23|-20.99|POS PURCHASE SUBWAY #8806",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense personnelle liée à une transaction de restauration (achat à Subway), et n'a aucun lien avec les activités commerciales de la PME Groupe Usinage Saint-Maurice."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-23",
+   "description": "POS PURCHASE TIM HORTONS #6336",
+   "montant": -39.71,
+   "solde": 1374795.55,
+   "cle_doublon": "2026-10-23|-39.71|POS PURCHASE TIM HORTONS #6336",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense de restauration, donc elle ne correspond à aucune des catégories fournies qui sont liées à l'activité de la PME d'usinage."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-23",
+   "description": "POS PURCHASE MICROSOFT 365 #5697",
+   "montant": -433.92,
+   "solde": 1235381.76,
+   "cle_doublon": "2026-10-23|-433.92|POS PURCHASE MICROSOFT 365 #5697",
+   "suggestion": "Télécommunications, ERP et TI (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction mentionne Microsoft 365, qui est un logiciel de bureautique et de collaboration, ce qui relève de la catégorie des frais liés aux télécommunications, ERP et TI."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-24",
+   "description": "POS PURCHASE RONA #4226",
+   "montant": -142.88,
+   "solde": 1235238.88,
+   "cle_doublon": "2026-10-24|-142.88|POS PURCHASE RONA #4226",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense liée à l'achat de matériaux ou de consommables, mais sans contexte supplémentaire, il est difficile de la rattacher précisément à l'une des catégories fournies."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-24",
+   "description": "POS PURCHASE TELUS #7473",
+   "montant": -379.58,
+   "solde": 1229137.45,
+   "cle_doublon": "2026-10-24|-379.58|POS PURCHASE TELUS #7473",
+   "suggestion": "Télécommunications, ERP et TI (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction mentionne 'TELUS', qui est une entreprise de télécommunications. Cette dépense est donc logiquement classée dans la catégorie 'Télécommunications, ERP et TI'."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-25",
+   "description": "POS PURCHASE HOME DEPOT #9286",
+   "montant": -1026.73,
+   "solde": 1237933.53,
+   "cle_doublon": "2026-10-25|-1026.73|POS PURCHASE HOME DEPOT #9286",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense personnelle liée à un achat dans Home Depot, donc elle ne correspond à aucune des catégories fournies pour le plan de classement de Groupe Usinage Saint-Maurice."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-25",
+   "description": "POS PURCHASE DICOM EXPRESS #6475",
+   "montant": -409.37,
+   "solde": 1237524.16,
+   "cle_doublon": "2026-10-25|-409.37|POS PURCHASE DICOM EXPRESS #6475",
+   "suggestion": "Intérêts et frais bancaires (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction est une sortie de fonds et est probablement liée à des intérêts ou des frais bancaires, qui sont catégorisés comme fixes pour cette PME."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-27",
+   "description": "POS PURCHASE TIM HORTONS #2683",
+   "montant": -35.39,
+   "solde": 1143502.24,
+   "cle_doublon": "2026-10-27|-35.39|POS PURCHASE TIM HORTONS #2683",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense de restauration, donc elle ne correspond à aucune des catégories fournies qui sont liées à l'activité de la PME d'usinage."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-27",
+   "description": "POS PURCHASE STARBUCKS #2921",
+   "montant": -23.0,
+   "solde": 1139787.38,
+   "cle_doublon": "2026-10-27|-23.0|POS PURCHASE STARBUCKS #2921",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense personnelle liée à un achat de café, elle ne correspond à aucune des catégories fournies qui sont liées à l'activité commerciale de la PME."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-28",
+   "description": "POS PURCHASE COUCHE-TARD #9504",
+   "montant": -98.2,
+   "solde": 1139689.18,
+   "cle_doublon": "2026-10-28|-98.2|POS PURCHASE COUCHE-TARD #9504",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être un achat effectué par l'entreprise, probablement pour des besoins de fonctionnement courants. Cependant, sans plus de contexte, il est difficile de l'attribuer à l'une des catégories fournies."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-28",
+   "description": "POS PURCHASE STARBUCKS #2179",
+   "montant": -13.05,
+   "solde": 1269513.2,
+   "cle_doublon": "2026-10-28|-13.05|POS PURCHASE STARBUCKS #2179",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense personnelle liée à un achat de café, elle ne correspond à aucune des catégories fournies qui sont liées à l'activité commerciale de la PME."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-28",
+   "description": "POS PURCHASE DICOM EXPRESS #9525",
+   "montant": -289.74,
+   "solde": 1254951.97,
+   "cle_doublon": "2026-10-28|-289.74|POS PURCHASE DICOM EXPRESS #9525",
+   "suggestion": "Intérêts et frais bancaires (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction est une sortie de fonds et porte sur un point de vente (POS), ce qui suggère qu'il s'agit probablement d'un intérêt ou d'un frais bancaire."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-30",
+   "description": "POS PURCHASE COUCHE-TARD #3944",
+   "montant": -51.74,
+   "solde": 1029336.9,
+   "cle_doublon": "2026-10-30|-51.74|POS PURCHASE COUCHE-TARD #3944",
+   "suggestion": "À classer",
+   "confiance": 0.1,
+   "justification": "Cette transaction semble être une dépense liée à l'achat de denrées alimentaires ou de produits non professionnels, donc elle ne correspond à aucune des catégories fournies qui sont liées à l'activité commerciale ou aux frais de l'entreprise."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-31",
+   "description": "POS PURCHASE ZOOM #2714",
+   "montant": -231.56,
+   "solde": 1029105.34,
+   "cle_doublon": "2026-10-31|-231.56|POS PURCHASE ZOOM #2714",
+   "suggestion": "Intérêts et frais bancaires (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction est une sortie de fonds et est probablement liée à des intérêts ou des frais bancaires associés à l'activité de la PME."
+  },
+  {
+   "fichier": "CIBC 131088_2026-10.pdf",
+   "date": "2026-10-31",
+   "description": "POS PURCHASE DICOM EXPRESS #4005",
+   "montant": -613.71,
+   "solde": 983102.13,
+   "cle_doublon": "2026-10-31|-613.71|POS PURCHASE DICOM EXPRESS #4005",
+   "suggestion": "Intérêts et frais bancaires (Fixe)",
+   "confiance": 1.0,
+   "justification": "La transaction est une sortie de fonds et comporte le terme 'POS PURCHASE', ce qui suggère qu'il s'agit probablement d'un frais bancaire ou d'intérêts liés à une transaction de carte de crédit ou de débit."
+  }
+ ],
+ "previsions": {},
+ "flux_net_prevu": {},
+ "ecarts": [],
+ "commentaire": {},
+ "controles": [],
+ "relecture": {
+  "origine": "llm",
+  "notes": {
+   "classement": 5,
+   "doublons": 5,
+   "commentaire": 5,
+   "coherence": 5
+  },
+  "constats": [],
+  "rejetes": []
+ },
+ "empreinte": null,
+ "alertes": [],
+ "decision_humaine": {},
+ "fichiers": [],
+ "gouvernance": {
+  "run_id": "ORCH-20261101T134921-1ac699",
+  "chargement": {
+   "stg": 109,
+   "insere": 109,
+   "doublon": 0,
+   "rejete": 0
+  },
+  "qualite": {
+   "execution_id": "DQ-20261101T135515-4130ed",
+   "score_global": 94.8,
+   "nb_regles": 20,
+   "nb_echecs": 3,
+   "nb_bloquants_echec": 0
+  }
+ },
+ "id": "20261101T085515977743"
+}

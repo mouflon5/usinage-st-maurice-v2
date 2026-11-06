@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agents — pipeline trésorerie</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
+  --s1: #2a78d6; --s2: #eb6834;
+  --good: #006300; --warn: #9a6700; --bad: #d03b3b; --accent: #2a78d6;
+  --chip-good: #e6f4e6; --chip-warn: #fdf1d6; --chip-bad: #fbe6e6; --chip-off: #efeeea;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+    --s1: #3987e5; --s2: #d95926;
+    --good: #0ca30c; --warn: #fab219; --bad: #ec6a6a; --accent: #3987e5;
+    --chip-good: #12301a; --chip-warn: #3a2f0b; --chip-bad: #3b1717; --chip-off: #262624;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+  --s1: #3987e5; --s2: #d95926;
+  --good: #0ca30c; --warn: #fab219; --bad: #ec6a6a; --accent: #3987e5;
+  --chip-good: #12301a; --chip-warn: #3a2f0b; --chip-bad: #3b1717; --chip-off: #262624;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 64px; }
+a { color: var(--accent); }
+header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+h1 { font-size: 22px; margin: 0; }
+h2 { font-size: 16px; margin: 0 0 12px; }
+.sub { color: var(--ink-2); font-size: 13px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+select, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 6px 10px; }
+button { cursor: pointer; }
+.badge { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; padding: 4px 12px; border-radius: 999px; font-size: 14px; }
+.good { background: var(--chip-good); color: var(--good); } .warn { background: var(--chip-warn); color: var(--warn); }
+.bad { background: var(--chip-bad); color: var(--bad); } .off { background: var(--chip-off); color: var(--muted); }
+.strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.agent { border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: var(--surface); min-height: 86px; }
+.agent .id { font-weight: 700; font-size: 13px; color: var(--ink-2); }
+.agent .nom { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.agent .st { font-size: 12.5px; font-weight: 600; display: inline-flex; gap: 4px; padding: 2px 8px; border-radius: 999px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.tile .lab { color: var(--ink-2); font-size: 13px; }
+.tile .val { font-size: 26px; font-weight: 700; margin: 2px 0; }
+.tile .det { font-size: 13px; color: var(--ink-2); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--grid); }
+th:first-child, td:first-child { text-align: left; }
+table.l th:nth-child(2), table.l td:nth-child(2) { text-align: left; }
+th { color: var(--ink-2); font-weight: 600; font-size: 13px; }
+td.num { font-variant-numeric: tabular-nums; }
+.j-good { color: var(--good); font-weight: 600; } .j-bad { color: var(--bad); font-weight: 600; } .j-off { color: var(--muted); }
+.scroll { overflow-x: auto; }
+.charts { display: grid; grid-template-columns: 1fr; gap: 16px; }
+svg text { fill: var(--muted); font-size: 12px; font-family: inherit; }
+.legend { display: flex; gap: 16px; font-size: 13px; color: var(--ink-2); margin: 4px 0 8px; flex-wrap: wrap; }
+.key { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+#tip { position: fixed; pointer-events: none; z-index: 10; display: none; background: var(--surface); border: 1px solid var(--axis);
+  border-radius: 8px; padding: 8px 10px; box-shadow: 0 4px 14px rgba(0,0,0,.18); font-size: 13px; min-width: 190px; }
+#tip .v { font-weight: 700; color: var(--ink); } #tip .l { color: var(--ink-2); }
+#tip .r { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+ul.ctl { list-style: none; margin: 0; padding: 0; }
+ul.ctl li { display: grid; grid-template-columns: 70px 54px 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--grid); font-size: 14px; }
+ul.ctl .d { color: var(--ink-2); font-size: 13px; }
+.note { border-left: 3px solid var(--warn); padding: 6px 12px; margin: 6px 0; background: var(--chip-warn); border-radius: 0 8px 8px 0; font-size: 14px; }
+details summary { cursor: pointer; color: var(--ink-2); font-size: 13px; margin-top: 8px; }
+.empty { text-align: center; padding: 48px 16px; }
+code { background: var(--chip-off); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+@media (max-width: 760px) { .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div>
+      <h1>Agents — pipeline trésorerie</h1>
+      <div class="sub" id="meta">Chargement…</div>
+    </div>
+    <div class="row">
+      <a href="/">← Tableau de bord</a>
+      <label class="sub">Passage
+        <select id="hist" aria-label="Choisir un passage du pipeline"></select>
+      </label>
+      <button id="refresh" type="button">Rafraîchir</button>
+    </div>
+  </header>
+  <div id="app"></div>
+</main>
+<div id="tip" role="status"></div>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const NF = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 0 });
+const money = (x) => (x === null || x === undefined ? "n/d" : NF.format(Math.round(x)) + " $");
+const pct = (x) => (x === null || x === undefined ? "" : (x >= 0 ? "+" : "") + (x * 100).toFixed(1).replace(".", ",") + " %");
+const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const moisCourt = (p) => MOIS[+p.slice(5, 7) - 1] + " " + p.slice(2, 4);
+
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v);
+  }
+  for (const k of kids) if (k !== null && k !== undefined) e.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return e;
+}
+function svg(tag, attrs, text) {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+const STATUT = {
+  complet: ["good", "✓", "Complet"], approuve: ["good", "✓", "Approuvé"],
+  degrade: ["warn", "⚠", "Avec réserves"], reserves: ["warn", "⚠", "Avec réserves"], a_arbitrer: ["warn", "⚠", "À arbitrer"],
+  complet_avec_reserves: ["warn", "⚠", "Complet avec réserves"],
+  erreur: ["bad", "✕", "Erreur"], incomplet: ["bad", "✕", "Incomplet"], bloque: ["bad", "✕", "Bloqué"],
+  arrete_a1: ["bad", "✕", "Arrêté en A1"], arrete_a2: ["bad", "✕", "Arrêté en A2"], arrete_a3: ["bad", "✕", "Arrêté en A3"],
+  arrete_a4: ["bad", "✕", "Arrêté en A4"], arrete_a5: ["bad", "✕", "Arrêté en A5"], arrete_a7: ["bad", "✕", "Arrêté en A7"],
+  bloque_a6: ["bad", "✕", "Bloqué par A6"], rejete_humain: ["bad", "✕", "Rejeté (humain)"],
+};
+function badge(statut, cls) {
+  const [c, icon, label] = STATUT[statut] || ["off", "–", statut || "Non exécuté"];
+  return el("span", { class: (cls || "badge") + " " + c }, icon + " " + label);
+}
+const JUG = {
+  significatif_favorable: ["j-good", "▲ Favorable"], significatif_defavorable: ["j-bad", "▼ Défavorable"],
+  dans_la_tolerance: ["j-off", "— Tolérance"],
+};
+
+let SERIES = null, RUN = null;
+
+async function get(url) { const r = await fetch(url, { cache: "no-store" }); return r.json(); }
+
+async function charger(id) {
+  const app = $("#app");
+  const h = await get("/api/agents/historique");
+  const sel = $("#hist");
+  sel.replaceChildren();
+  (h.runs || []).forEach((r) => {
+    const o = el("option", { value: r.id }, `${r.horodatage.replace("T", " ")} · ${r.periode} · ${(STATUT[r.statut_pipeline] || [0, 0, r.statut_pipeline])[2]}`);
+    sel.append(o);
+  });
+  const d = id ? await get("/api/agents/run?id=" + encodeURIComponent(id)) : await get("/api/agents/dernier");
+  if (!d.ok) {
+    app.replaceChildren(el("div", { class: "card empty" },
+      el("h2", { text: "Aucun passage du pipeline pour l'instant" }),
+      el("p", { class: "sub", text: d.error || "" }),
+      el("p", {}, "Lance l'orchestrateur (Studio ou ", el("code", { text: "python lancer_scenarios.py" }), "), puis rafraîchis cette page.")));
+    $("#meta").textContent = "";
+    return;
+  }
+  RUN = d.run;
+  if (sel.querySelector(`option[value="${RUN.id}"]`)) sel.value = RUN.id;
+  try { SERIES = await get("/api/agents/series"); } catch (e) { SERIES = null; }
+  rendre(RUN);
+}
+
+function rendre(r) {
+  $("#meta").textContent = `Compte ${r.compte} · période ${r.periode} · ${r.horodatage.replace("T", " ")} · base ${(SERIES && SERIES.base) || r.db_path} · LLM : ${r.mode_llm || "—"}`;
+  const app = $("#app");
+  app.replaceChildren();
+
+  // --- Verdict et chaîne d'agents ---
+  const strip = el("div", { class: "strip" });
+  let arrete = false;
+  r.agents.forEach((a) => {
+    const st = a.statut ? a.statut : null;
+    strip.append(el("div", { class: "agent", title: a.message || "" },
+      el("div", { class: "id", text: a.id }), el("div", { class: "nom", text: a.nom }),
+      st ? badge(st, "st") : el("span", { class: "st off" }, "– Non exécuté")));
+  });
+  const head = el("div", { class: "card" },
+    el("div", { class: "row", style: "margin-bottom:12px" }, el("h2", { style: "margin:0", text: "Résultat du pipeline" }), badge(r.statut_pipeline)),
+    strip);
+  app.append(head);
+
+  const dh = r.decision_humaine && r.decision_humaine.decision;
+  const infos = el("div", { class: "card" }, el("h2", { text: "Message du pipeline" }), el("div", { class: "sub", text: r.message_pipeline || "" }));
+  (r.alertes || []).forEach((a) => infos.append(el("div", { class: "note" }, "⚠ " + a)));
+  if (dh) infos.append(el("div", { class: "sub", style: "margin-top:8px" }, `Décision humaine : ${dh}${r.decision_humaine.commentaire ? " — " + r.decision_humaine.commentaire : ""}`));
+  if (r.residu_a3 && r.residu_a3.length) {
+    infos.append(el("h2", { style: "margin-top:12px", text: "Lignes à arbitrer par le contrôleur" }));
+    r.residu_a3.forEach((t) => infos.append(el("div", { class: "note" },
+      `${t.date} · ${t.description} · ${money(t.montant)}` + (t.suggestion ? ` — suggestion « ${t.suggestion} » (confiance ${(t.confiance * 100).toFixed(0)} %)` : ""))));
+  }
+  app.append(infos);
+
+  // --- Tuiles ---
+  const flux = (r.ecarts || []).find((l) => l.code === "Flux");
+  const a3 = r.resume_a3 || {};
+  const ok = (r.controles || []).filter((c) => c.ok).length;
+  const tiles = el("div", { class: "tiles" });
+  if (flux) {
+    tiles.append(tile("Flux net réel · " + r.periode, money(flux.reel),
+      flux.budget !== null ? `Budget ${money(flux.budget)} (${money(flux.ecart_budget)})` : "Budget n/d"));
+    tiles.append(tile("Prévu par SARIMAX", money(flux.prevu), flux.ecart_prevision !== null ? `Écart ${money(flux.ecart_prevision)}` : ""));
+  }
+  tiles.append(tile("Écritures chargées", String(a3.promus_journal_general ?? "—"), `${a3.doublons_ignores ?? 0} doublon(s) · ${a3.a_classer ?? 0} à classer`));
+  tiles.append(tile("Contrôles A6", (r.controles || []).length ? `${ok} / ${r.controles.length}` : "—", r.empreinte ? "empreinte " + r.empreinte : ""));
+  app.append(tiles);
+
+  // --- Écarts ---
+  if ((r.ecarts || []).length) {
+    const t = el("table", {}, el("thead", {}, el("tr", {}, ...["Ligne", "Réel", "Budget", "Écart vs budget", "Prévu (SARIMAX)", "Écart vs prévision"].map((h) => el("th", { text: h })))));
+    const tb = el("tbody");
+    r.ecarts.forEach((l) => {
+      const cell = (ecart, p, jug) => {
+        const [c, lab] = JUG[jug] || ["j-off", ""];
+        return el("td", { class: "num" }, ecart === null ? "n/d" : `${money(ecart)}${p !== null && p !== undefined ? " (" + pct(p) + ")" : ""}`,
+          el("div", { class: c, style: "font-size:12px", text: lab }));
+      };
+      tb.append(el("tr", {}, el("td", { text: l.libelle, style: l.code === "Flux" ? "font-weight:700" : "" }),
+        el("td", { class: "num", text: money(l.reel) }), el("td", { class: "num", text: money(l.budget) }),
+        cell(l.ecart_budget, l.ecart_budget_pct, l.jugement_budget), el("td", { class: "num", text: money(l.prevu) }),
+        cell(l.ecart_prevision, l.ecart_prevision_pct, l.jugement_prevision)));
+    });
+    t.append(tb);
+    const card = el("div", { class: "card" }, el("h2", { text: "Écarts : réel contre budget et contre prévision" }), el("div", { class: "scroll" }, t));
+    const c = r.commentaire || {};
+    if (c.resume) {
+      card.append(el("p", { style: "margin:12px 0 4px" }, el("strong", { text: "Commentaire " }), el("span", { class: "sub", text: `(origine : ${c.origine})` })));
+      card.append(el("div", { text: c.resume }));
+      (c.points || []).forEach((p) => card.append(el("div", { class: "sub", text: "• " + p })));
+    }
+    app.append(card);
+  }
+
+  // --- Graphiques ---
+  if (SERIES && r.previsions && r.previsions.Revenu) {
+    const card = el("div", { class: "card" }, el("h2", { text: "Revenus et décaissements : historique réel et prévision A4" }));
+    card.append(el("div", { class: "legend" },
+      el("span", {}, el("span", { class: "key", style: "background:var(--s1)" }), "Revenus"),
+      el("span", {}, el("span", { class: "key", style: "background:var(--s2)" }), "Décaissements"),
+      el("span", { class: "sub", text: "Trait plein : réel · pointillé : prévision · zone : intervalle à 95 %" })));
+    card.append(lineChart(r));
+    Object.values(r.previsions).forEach((p) => { if (p.ic_note) card.append(el("div", { class: "note" }, "ℹ " + p.ic_note)); });
+    card.append(tableView(r));
+    app.append(card);
+
+    const card2 = el("div", { class: "card" }, el("h2", { text: "Flux net mensuel (réel puis prévu)" }));
+    card2.append(barChart(r));
+    app.append(card2);
+  }
+
+  // --- Contrôles ---
+  if ((r.controles || []).length) {
+    const ul = el("ul", { class: "ctl" });
+    r.controles.forEach((c) => ul.append(el("li", {},
+      el("span", { class: c.ok ? "j-good" : "j-bad", text: (c.ok ? "✓ " : "✕ ") + c.id }),
+      el("span", { class: "d", text: c.gravite === "bloquant" ? "bloquant" : "réserve" }),
+      el("span", {}, c.libelle, el("div", { class: "d", text: c.detail })))));
+    app.append(el("div", { class: "card" }, el("h2", { text: "Contrôles indépendants d'A6" }), ul));
+  }
+
+  // --- Écritures et fichiers ---
+  if ((r.transactions || []).length) {
+    const t = el("table", { class: "l" }, el("thead", {}, el("tr", {}, el("th", { text: "Date" }), el("th", { text: "Description" }), el("th", { text: "Montant" }))));
+    const tb = el("tbody");
+    r.transactions.forEach((x) => tb.append(el("tr", {}, el("td", { text: x.date }), el("td", { text: x.description, style: "text-align:left" }), el("td", { class: "num", text: money(x.montant) }))));
+    t.append(tb);
+    app.append(el("div", { class: "card" }, el("h2", { text: `Transactions extraites des relevés (${r.transactions.length})` }), el("div", { class: "scroll" }, t)));
+  }
+  if ((r.fichiers || []).length) {
+    app.append(el("div", { class: "card" }, el("h2", { text: "Fichiers produits par A7" }), ...r.fichiers.map((f) => el("div", {}, el("code", { text: f })))));
+  }
+}
+
+function tile(lab, val, det) {
+  return el("div", { class: "tile" }, el("div", { class: "lab", text: lab }), el("div", { class: "val", text: val }), el("div", { class: "det", text: det || "" }));
+}
+
+// ---------- graphiques (SVG, sans bibliothèque) ----------
+const W = 1100, H = 300, M = { l: 84, r: 90, t: 14, b: 30 };
+
+function donnees(r) {
+  const periodes = SERIES.periodes, N = 24;
+  const hist = periodes.slice(-N), off = periodes.length - N;
+  const rev = SERIES.series.Revenu.slice(off), dec = SERIES.series.Decaissements.slice(off), flx = SERIES.series.Flux.slice(off);
+  const p = r.previsions, fp = p.Revenu.periodes;
+  return { hist, rev, dec, flx, fp, frev: p.Revenu, fdec: p.Decaissements, ffl: (r.flux_net_prevu || {}).valeurs || [] };
+}
+
+function lineChart(r) {
+  const d = donnees(r), labels = d.hist.concat(d.fp), n = labels.length, nh = d.hist.length;
+  const lo = (a) => a.map((x) => x[0]), hi = (a) => a.map((x) => x[1]);
+  const all = d.rev.concat(d.dec, d.frev.valeurs, d.fdec ? d.fdec.valeurs : [], lo(d.frev.ci95), hi(d.frev.ci95), d.fdec ? lo(d.fdec.ci95).concat(hi(d.fdec.ci95)) : []);
+  let ymin = Math.min(...all), ymax = Math.max(...all);
+  const pad = (ymax - ymin) * 0.08; ymin = Math.max(0, ymin - pad); ymax += pad;
+  const X = (i) => M.l + (i * (W - M.l - M.r)) / (n - 1), Y = (v) => M.t + (1 - (v - ymin) / (ymax - ymin)) * (H - M.t - M.b);
+  const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img", "aria-label": "Revenus et décaissements, historique et prévision" });
+  const ticks = 5;
+  for (let i = 0; i <= ticks; i++) {
+    const v = ymin + ((ymax - ymin) * i) / ticks, y = Y(v);
+    s.append(svg("line", { x1: M.l, x2: W - M.r, y1: y, y2: y, stroke: "var(--grid)", "stroke-width": 1 }));
+    s.append(svg("text", { x: M.l - 8, y: y + 4, "text-anchor": "end" }, NF.format(Math.round(v / 1000)) + " k$"));
+  }
+  labels.forEach((p, i) => { if (i % 3 === 0 || i === n - 1) s.append(svg("text", { x: X(i), y: H - 8, "text-anchor": "middle" }, moisCourt(p))); });
+  s.append(svg("line", { x1: M.l, x2: W - M.r, y1: Y(ymin), y2: Y(ymin), stroke: "var(--axis)" }));
+  // séparation réel / prévision
+  const xs = (X(nh - 1) + X(nh)) / 2;
+  s.append(svg("line", { x1: xs, x2: xs, y1: M.t, y2: H - M.b, stroke: "var(--axis)", "stroke-dasharray": "4 4" }));
+  s.append(svg("text", { x: xs + 6, y: M.t + 12 }, "Prévision →"));
+  const serie = (vals, fvals, ci, color, nom) => {
+    const pts = vals.map((v, i) => [X(i), Y(v)]);
+    s.append(svg("path", { d: "M" + pts.map((p) => p.join(",")).join("L"), fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
+    if (fvals) {
+      const fx = fvals.map((v, i) => [X(nh + i), Y(v)]);
+      const up = ci.map((c, i) => [X(nh + i), Y(c[1])]), dn = ci.map((c, i) => [X(nh + i), Y(c[0])]).reverse();
+      s.append(svg("path", { d: "M" + up.concat(dn).map((p) => p.join(",")).join("L") + "Z", fill: color, opacity: 0.14 }));
+      s.append(svg("path", { d: "M" + [pts[pts.length - 1]].concat(fx).map((p) => p.join(",")).join("L"), fill: "none", stroke: color, "stroke-width": 2, "stroke-dasharray": "6 4" }));
+      s.append(svg("text", { x: fx[fx.length - 1][0] + 8, y: fx[fx.length - 1][1] + 4, style: "fill:var(--ink-2)" }, nom));
+    }
+  };
+  serie(d.rev, d.frev.valeurs, d.frev.ci95, "var(--s1)", "Revenus");
+  if (d.fdec) serie(d.dec, d.fdec.valeurs, d.fdec.ci95, "var(--s2)", "Décaiss.");
+  // période analysée
+  const ia = d.hist.indexOf(r.periode);
+  if (ia >= 0) {
+    s.append(svg("circle", { cx: X(ia), cy: Y(d.rev[ia]), r: 5, fill: "var(--s1)", stroke: "var(--surface)", "stroke-width": 2 }));
+    s.append(svg("circle", { cx: X(ia), cy: Y(d.dec[ia]), r: 5, fill: "var(--s2)", stroke: "var(--surface)", "stroke-width": 2 }));
+    s.append(svg("text", { x: X(ia), y: Y(Math.max(d.rev[ia], d.dec[ia])) - 12, "text-anchor": "middle", style: "fill:var(--ink)" }, "période analysée"));
+  }
+  // survol : repère vertical + info-bulle
+  const cross = svg("line", { y1: M.t, y2: H - M.b, stroke: "var(--ink-2)", "stroke-width": 1, visibility: "hidden" });
+  s.append(cross);
+  const hit = svg("rect", { x: M.l, y: M.t, width: W - M.l - M.r, height: H - M.t - M.b, fill: "transparent", tabindex: 0 });
+  const rows = (i) => {
+    const pre = i >= nh, k = i - nh;
+    return [["Revenus", "var(--s1)", pre ? d.frev.valeurs[k] : d.rev[i]], ["Décaissements", "var(--s2)", pre ? (d.fdec ? d.fdec.valeurs[k] : null) : d.dec[i]]];
+  };
+  hit.addEventListener("pointermove", (e) => {
+    const b = s.getBoundingClientRect(), x = ((e.clientX - b.left) / b.width) * W;
+    const i = Math.max(0, Math.min(n - 1, Math.round(((x - M.l) / (W - M.l - M.r)) * (n - 1))));
+    cross.setAttribute("x1", X(i)); cross.setAttribute("x2", X(i)); cross.setAttribute("visibility", "visible");
+    montrerTip(e, labels[i] + (i >= nh ? " (prévision)" : ""), rows(i));
+  });
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); cacherTip(); });
+  s.append(hit);
+  return s;
+}
+
+function barChart(r) {
+  const d = donnees(r), vals = d.flx.slice(-12).concat(d.ffl), labels = d.hist.slice(-12).concat(d.fp), n = vals.length, nh = 12;
+  const ymax = Math.max(0, ...vals) * 1.1, ymin = Math.min(0, ...vals) * 1.1;
+  const slot = (W - M.l - M.r) / n, bw = Math.min(40, slot * 0.6);
+  const Y = (v) => M.t + (1 - (v - ymin) / (ymax - ymin)) * (H - M.t - M.b);
+  const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img", "aria-label": "Flux net mensuel" });
+  const defs = svg("defs"); const pat = svg("pattern", { id: "hach", width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+  pat.append(svg("rect", { width: 6, height: 6, fill: "var(--surface)" })); pat.append(svg("rect", { width: 2.5, height: 6, fill: "var(--s1)" })); defs.append(pat); s.append(defs);
+  for (let i = 0; i <= 4; i++) {
+    const v = ymin + ((ymax - ymin) * i) / 4, y = Y(v);
+    s.append(svg("line", { x1: M.l, x2: W - M.r, y1: y, y2: y, stroke: "var(--grid)" }));
+    s.append(svg("text", { x: M.l - 8, y: y + 4, "text-anchor": "end" }, NF.format(Math.round(v / 1000)) + " k$"));
+  }
+  s.append(svg("line", { x1: M.l, x2: W - M.r, y1: Y(0), y2: Y(0), stroke: "var(--axis)" }));
+  vals.forEach((v, i) => {
+    const x = M.l + slot * i + (slot - bw) / 2, y0 = Y(0), y1 = Y(v), top = Math.min(y0, y1), h = Math.max(1, Math.abs(y1 - y0));
+    const prev = i >= nh;
+    const b = svg("rect", { x, y: top, width: bw, height: h, rx: 4, fill: prev ? "url(#hach)" : "var(--s1)", stroke: prev ? "var(--s1)" : "none", "stroke-width": prev ? 1.5 : 0, tabindex: 0 });
+    const tip = (e) => montrerTip(e, labels[i] + (prev ? " (prévision)" : " (réel)"), [["Flux net", "var(--s1)", v]]);
+    b.addEventListener("pointermove", tip); b.addEventListener("focus", (e) => { const bb = b.getBoundingClientRect(); tip({ clientX: bb.left + bb.width / 2, clientY: bb.top }); });
+    b.addEventListener("pointerleave", cacherTip); b.addEventListener("blur", cacherTip);
+    s.append(b);
+    if (i % 2 === 0 || i === n - 1) s.append(svg("text", { x: x + bw / 2, y: H - 8, "text-anchor": "middle" }, moisCourt(labels[i])));
+  });
+  const iA = labels.indexOf(r.periode);
+  if (iA >= 0) s.append(svg("text", { x: M.l + slot * iA + slot / 2, y: M.t + 10, "text-anchor": "middle", style: "fill:var(--ink)" }, "▼ période"));
+  return s;
+}
+
+function tableView(r) {
+  const d = donnees(r), t = el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Mois" }), el("th", { text: "Revenus" }), el("th", { text: "Décaissements" }), el("th", { text: "Type" }))));
+  const tb = el("tbody");
+  d.hist.forEach((p, i) => tb.append(el("tr", {}, el("td", { text: p }), el("td", { class: "num", text: money(d.rev[i]) }), el("td", { class: "num", text: money(d.dec[i]) }), el("td", { text: "réel" }))));
+  d.fp.forEach((p, i) => tb.append(el("tr", {}, el("td", { text: p }), el("td", { class: "num", text: money(d.frev.valeurs[i]) }), el("td", { class: "num", text: money(d.fdec ? d.fdec.valeurs[i] : null) }), el("td", { text: "prévision" }))));
+  t.append(tb);
+  return el("details", {}, el("summary", { text: "Afficher les valeurs en tableau" }), el("div", { class: "scroll" }, t));
+}
+
+function montrerTip(e, titre, rows) {
+  const tip = $("#tip"); tip.replaceChildren(el("div", { class: "l", text: titre }));
+  rows.forEach(([nom, col, v]) => tip.append(el("div", { class: "r" }, el("span", {}, el("span", { class: "key", style: "background:" + col }), el("span", { class: "l", text: nom })), el("span", { class: "v", text: money(v) }))));
+  tip.style.display = "block";
+  const w = tip.offsetWidth; let x = e.clientX + 14; if (x + w > innerWidth - 8) x = e.clientX - w - 14;
+  tip.style.left = x + "px"; tip.style.top = Math.max(8, e.clientY - 30) + "px";
+}
+function cacherTip() { $("#tip").style.display = "none"; }
+
+$("#hist").addEventListener("change", (e) => charger(e.target.value));
+$("#refresh").addEventListener("click", () => charger());
+charger().catch((e) => { $("#app").replaceChildren(el("div", { class: "card empty" }, el("h2", { text: "Impossible de lire les traces" }), el("p", { class: "sub", text: String(e) }))); });
+</script>
+</body>
+</html>

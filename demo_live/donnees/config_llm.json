@@ -1,0 +1,5 @@
+{
+ "fournisseur": "ollama",
+ "modele": "qwen2.5:7b",
+ "url": "http://localhost:11434"
+}

@@ -1,0 +1,523 @@
+{
+ "horodatage": "2026-10-31T19:01:50",
+ "compte": "Desjardins EOP",
+ "periode": "2026-02",
+ "periode_debut": "2026-02",
+ "db_path": "tresorerie_test_pipeline.db",
+ "statut_pipeline": "complet",
+ "message_pipeline": "Pipeline A1→A7 réussi. 5 écriture(s) chargée(s) {'regle': 5}, 0 doublon(s) ignoré(s). Prêt pour A4 (Prévision). 2 série(s) prévue(s) sur 6 mois. Flux net prévu cumulé : -1,112,324 $. 2026-02 : 3 ligne(s) avec écart significatif ; flux net réel 145 512 $. Commentaire : simule. Approuvé : 11/11 contrôles réussis (empreinte d828fec655cde7f1). 2 fichier(s) produit(s) dans sorties_tests\\2026-02 (7 feuilles ; synthèse : simule).",
+ "mode_llm": "simule",
+ "agents": [
+  {
+   "id": "A1",
+   "nom": "Acquisition",
+   "statut": "complet",
+   "message": "Compte Desjardins EOP : 1 période(s) couverte(s), aucun trou détecté. Prêt pour A2 (Extraction)."
+  },
+  {
+   "id": "A2",
+   "nom": "Extraction",
+   "statut": "complet",
+   "message": "5 transaction(s) extraite(s) (format F1), aucune anomalie. Prêt pour A3."
+  },
+  {
+   "id": "A3",
+   "nom": "Réconciliation",
+   "statut": "complet",
+   "message": "5 écriture(s) chargée(s) {'regle': 5}, 0 doublon(s) ignoré(s). Prêt pour A4 (Prévision)."
+  },
+  {
+   "id": "A4",
+   "nom": "Prévision",
+   "statut": "complet",
+   "message": "2 série(s) prévue(s) sur 6 mois. Flux net prévu cumulé : -1,112,324 $."
+  },
+  {
+   "id": "A5",
+   "nom": "Écarts",
+   "statut": "complet",
+   "message": "2026-02 : 3 ligne(s) avec écart significatif ; flux net réel 145 512 $. Commentaire : simule."
+  },
+  {
+   "id": "A6",
+   "nom": "Contrôle",
+   "statut": "approuve",
+   "message": "Approuvé : 11/11 contrôles réussis (empreinte d828fec655cde7f1)."
+  },
+  {
+   "id": "A8",
+   "nom": "Relecture",
+   "statut": "ok",
+   "message": "Relecture simule : 0 réserve(s), 0 remarque(s)."
+  },
+  {
+   "id": "A7",
+   "nom": "Reporting",
+   "statut": "complet",
+   "message": "2 fichier(s) produit(s) dans sorties_tests\\2026-02 (7 feuilles ; synthèse : simule)."
+  }
+ ],
+ "transactions": [
+  {
+   "fichier": "Desjardins EOP_2026-02.pdf",
+   "date": "2026-02-02",
+   "description": "RECUPERATION - AMERICAN IRON & METAL FACT 73726",
+   "montant": 31057.03,
+   "solde": 1031057.03
+  },
+  {
+   "fichier": "Desjardins EOP_2026-02.pdf",
+   "date": "2026-02-07",
+   "description": "FRET - GROUPE MORNEAU FACT 78959",
+   "montant": -12750.6,
+   "solde": 1018306.43
+  },
+  {
+   "fichier": "Desjardins EOP_2026-02.pdf",
+   "date": "2026-02-21",
+   "description": "MATIERES PREMIERES - ACIER RUSSEL TROIS-RIVIERES FACT 89152",
+   "montant": -104199.47,
+   "solde": 914106.96
+  },
+  {
+   "fichier": "Desjardins EOP_2026-02.pdf",
+   "date": "2026-02-23",
+   "description": "FACTURE USINAGE - KRUGER TROIS-RIVIERES FACT 73420",
+   "montant": 211804.15,
+   "solde": 1125911.11
+  },
+  {
+   "fichier": "Desjardins EOP_2026-02.pdf",
+   "date": "2026-02-26",
+   "description": "PUBLICITE - SALON INDUSTRIEL DE MONTREAL FACT 85522",
+   "montant": -3939.73,
+   "solde": 1121971.38
+  }
+ ],
+ "resume_a3": {
+  "inseres_staging": 5,
+  "promus_journal_general": 5,
+  "doublons_ignores": 0,
+  "a_classer": 0,
+  "par_methode": {
+   "regle": 5
+  }
+ },
+ "residu_a3": [],
+ "previsions": {
+  "Revenu": {
+   "ic_methode": "RMSE du backtest",
+   "ic_note": "Revenu : l'intervalle SARIMAX était instable (valeurs aberrantes) ; remplacé par prévision ± z × RMSE du backtest (181 384 $).",
+   "methode": "SARIMAX",
+   "periodes": [
+    "2027-01",
+    "2027-02",
+    "2027-03",
+    "2027-04",
+    "2027-05",
+    "2027-06"
+   ],
+   "valeurs": [
+    978801.58,
+    1133262.47,
+    1227236.87,
+    1242648.47,
+    1236454.31,
+    1225354.88
+   ],
+   "ci80": [
+    [
+     746340.13,
+     1211263.02
+    ],
+    [
+     900801.03,
+     1365723.92
+    ],
+    [
+     994775.43,
+     1459698.32
+    ],
+    [
+     1010187.02,
+     1475109.91
+    ],
+    [
+     1003992.86,
+     1468915.75
+    ],
+    [
+     992893.43,
+     1457816.32
+    ]
+   ],
+   "ci95": [
+    [
+     623289.38,
+     1334313.77
+    ],
+    [
+     777750.27,
+     1488774.67
+    ],
+    [
+     871724.68,
+     1582749.07
+    ],
+    [
+     887136.27,
+     1598160.66
+    ],
+    [
+     880942.11,
+     1591966.5
+    ],
+    [
+     869842.68,
+     1580867.08
+    ]
+   ],
+   "backtest": {
+    "mae": 126054.86,
+    "rmse": 181383.77,
+    "bias": 25984.55,
+    "mape": 0.1108
+   },
+   "diagnostics": {
+    "aic": 435896.63674680056,
+    "bic": 435909.0795312925,
+    "llf": -217940.31837340028,
+    "converged": true,
+    "nobs": 48
+   },
+   "parametres": {
+    "order": [
+     1,
+     0,
+     0
+    ],
+    "seasonal_order": [
+     1,
+     0,
+     1,
+     12
+    ],
+    "trend_exog": true,
+    "fourier_k": 1
+   },
+   "derniere_observation": "2026-12"
+  },
+  "Decaissements": {
+   "ic_methode": "RMSE du backtest",
+   "ic_note": "Decaissements : l'intervalle SARIMAX était instable (valeurs aberrantes) ; remplacé par prévision ± z × RMSE du backtest (141 329 $).",
+   "methode": "SARIMAX",
+   "periodes": [
+    "2027-01",
+    "2027-02",
+    "2027-03",
+    "2027-04",
+    "2027-05",
+    "2027-06"
+   ],
+   "valeurs": [
+    1044521.37,
+    1205403.32,
+    1337345.43,
+    1413776.85,
+    1522422.58,
+    1632613.06
+   ],
+   "ci80": [
+    [
+     863393.78,
+     1225648.95
+    ],
+    [
+     1024275.73,
+     1386530.9
+    ],
+    [
+     1156217.85,
+     1518473.02
+    ],
+    [
+     1232649.27,
+     1594904.44
+    ],
+    [
+     1341295.0,
+     1703550.17
+    ],
+    [
+     1451485.48,
+     1813740.65
+    ]
+   ],
+   "ci95": [
+    [
+     767516.01,
+     1321526.72
+    ],
+    [
+     928397.96,
+     1482408.67
+    ],
+    [
+     1060340.08,
+     1614350.79
+    ],
+    [
+     1136771.5,
+     1690782.21
+    ],
+    [
+     1245417.23,
+     1799427.94
+    ],
+    [
+     1355607.71,
+     1909618.42
+    ]
+   ],
+   "backtest": {
+    "mae": 118104.24,
+    "rmse": 141329.26,
+    "bias": -54714.87,
+    "mape": 0.1032
+   },
+   "diagnostics": {
+    "aic": 195322.03845893478,
+    "bic": 195334.4812434267,
+    "llf": -97653.01922946739,
+    "converged": true,
+    "nobs": 48
+   },
+   "parametres": {
+    "order": [
+     1,
+     0,
+     0
+    ],
+    "seasonal_order": [
+     1,
+     0,
+     1,
+     12
+    ],
+    "trend_exog": true,
+    "fourier_k": 1
+   },
+   "derniere_observation": "2026-12"
+  }
+ },
+ "flux_net_prevu": {
+  "periodes": [
+   "2027-01",
+   "2027-02",
+   "2027-03",
+   "2027-04",
+   "2027-05",
+   "2027-06"
+  ],
+  "valeurs": [
+   -65719.79,
+   -72140.85,
+   -110108.56,
+   -171128.38,
+   -285968.27,
+   -407258.18
+  ],
+  "source": "Revenu prévu − Décaissements prévus (calcul déterministe)"
+ },
+ "ecarts": [
+  {
+   "code": "Revenu",
+   "libelle": "Revenus",
+   "reel": 1454953.84,
+   "budget": 1290262.425,
+   "prevu": 1145866.4877715756,
+   "ecart_budget": 164691.41500000004,
+   "ecart_budget_pct": 0.12764179736536932,
+   "jugement_budget": "significatif_favorable",
+   "ecart_prevision": 309087.3522284245,
+   "ecart_prevision_pct": 0.2697411570431057,
+   "jugement_prevision": "significatif_favorable"
+  },
+  {
+   "code": "Fixe",
+   "libelle": "Frais fixes",
+   "reel": 272836.84,
+   "budget": 255779.62,
+   "prevu": 257981.3570400959,
+   "ecart_budget": 17057.22000000003,
+   "ecart_budget_pct": 0.0666871739038475,
+   "jugement_budget": "dans_la_tolerance",
+   "ecart_prevision": 14855.482959904126,
+   "ecart_prevision_pct": 0.05758355227814102,
+   "jugement_prevision": "dans_la_tolerance"
+  },
+  {
+   "code": "Variable",
+   "libelle": "Frais variables",
+   "reel": 926422.46,
+   "budget": 805819.475,
+   "prevu": 765259.7663970428,
+   "ecart_budget": 120602.98499999999,
+   "ecart_budget_pct": 0.14966501647282723,
+   "jugement_budget": "significatif_defavorable",
+   "ecart_prevision": 161162.69360295718,
+   "ecart_prevision_pct": 0.21059867600479665,
+   "jugement_prevision": "significatif_defavorable"
+  },
+  {
+   "code": "Financement",
+   "libelle": "Financement",
+   "reel": 110182.21,
+   "budget": 108956.455,
+   "prevu": 104533.05277297404,
+   "ecart_budget": 1225.7550000000047,
+   "ecart_budget_pct": 0.011249953020222662,
+   "jugement_budget": "dans_la_tolerance",
+   "ecart_prevision": 5649.157227025964,
+   "ecart_prevision_pct": 0.05404182770108955,
+   "jugement_prevision": "dans_la_tolerance"
+  },
+  {
+   "code": "Flux",
+   "libelle": "Flux net",
+   "reel": 145512.33000000002,
+   "budget": 119706.87500000007,
+   "prevu": 18092.311561462906,
+   "ecart_budget": 25805.454999999944,
+   "ecart_budget_pct": null,
+   "jugement_budget": "significatif_favorable",
+   "ecart_prevision": 127420.01843853711,
+   "ecart_prevision_pct": null,
+   "jugement_prevision": "significatif_favorable"
+  }
+ ],
+ "commentaire": {
+  "resume": "Pour 2026-02, 3 ligne(s) présentent un écart significatif.",
+  "points": [
+   "Revenus : 164 691 $ (+12,8 %) vs budget ; 309 087 $ (+27,0 %) vs prévision.",
+   "Frais variables : 120 603 $ (+15,0 %) vs budget ; 161 163 $ (+21,1 %) vs prévision.",
+   "Flux net : 25 805 $ vs budget ; 127 420 $ vs prévision."
+  ],
+  "origine": "simule"
+ },
+ "controles": [
+  {
+   "id": "C1",
+   "libelle": "Intégrité SQLite (quick_check)",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "ok"
+  },
+  {
+   "id": "C2",
+   "libelle": "Invariants de journal_general",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "6 invariants respectés"
+  },
+  {
+   "id": "C3",
+   "libelle": "Signe des montants (revenus > 0, charges < 0)",
+   "gravite": "reserve",
+   "ok": true,
+   "detail": "conforme"
+  },
+  {
+   "id": "C4",
+   "libelle": "Historique de 48 mois distincts (exigé par R8/SARIMAX)",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "48 mois"
+  },
+  {
+   "id": "C5",
+   "libelle": "Traçabilité : chaque transaction d'A2 est retrouvée en base",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "5 transaction(s) retrouvée(s)"
+  },
+  {
+   "id": "C6",
+   "libelle": "Conservation : transactions A2 = insérées + doublons",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "5 = 5 + 0"
+  },
+  {
+   "id": "C7",
+   "libelle": "Rejeu des soldes : ouverture + Σ mouvements = solde de clôture",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "1 relevé(s) rejoué(s)"
+  },
+  {
+   "id": "C8",
+   "libelle": "Recalcul indépendant du réel et du budget (SQL direct)",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "5 ligne(s) recalculée(s), concordance exacte"
+  },
+  {
+   "id": "C9",
+   "libelle": "Reproductibilité de la prévision SARIMAX (relance)",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "relance 1,145,866.49 vs 1,145,866.49"
+  },
+  {
+   "id": "C10",
+   "libelle": "Cohérence des prévisions A4 (finies, dans leur IC 95 %)",
+   "gravite": "reserve",
+   "ok": true,
+   "detail": "2 série(s) cohérente(s)"
+  },
+  {
+   "id": "C11",
+   "libelle": "Chaque chiffre du commentaire figure dans le tableau d'écarts",
+   "gravite": "bloquant",
+   "ok": true,
+   "detail": "tous les chiffres sont sourcés"
+  }
+ ],
+ "relecture": {
+  "origine": "simule",
+  "notes": {
+   "classement": 5,
+   "doublons": 5
+  },
+  "constats": [],
+  "rejetes": []
+ },
+ "empreinte": "d828fec655cde7f1",
+ "alertes": [],
+ "decision_humaine": {
+  "decision": "approuver",
+  "commentaire": "OK pour diffusion"
+ },
+ "fichiers": [
+  "sorties_tests\\2026-02\\Rapport_Tresorerie_2026-02.xlsx",
+  "sorties_tests\\2026-02\\R0_2026-02.md"
+ ],
+ "gouvernance": {
+  "run_id": "ORCH-20261031T230148-7e8af1",
+  "chargement": {
+   "stg": 5,
+   "insere": 5,
+   "doublon": 0,
+   "rejete": 0
+  },
+  "qualite": {
+   "execution_id": "DQ-20261031T230150-561c53",
+   "score_global": 94.74,
+   "nb_regles": 20,
+   "nb_echecs": 1,
+   "nb_bloquants_echec": 0
+  }
+ },
+ "id": "20261031T190150884224"
+}

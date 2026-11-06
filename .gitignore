@@ -1,0 +1,13 @@
+# Secrets et environnement local : ne JAMAIS publier
+.env
+.venv/
+venv/
+.streamlit/secrets.toml
+
+# Caches et fichiers temporaires
+__pycache__/
+*.pyc
+*.db-shm
+*.db-wal
+.langgraph_api/
+.DS_Store

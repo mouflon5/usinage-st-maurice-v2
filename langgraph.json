@@ -1,0 +1,15 @@
+{
+  "dependencies": [
+    "."
+  ],
+  "graphs": {
+    "orchestrateur": "./graph.py:graph",
+    "a3_reconciliation": "./a3_graph.py:graph",
+    "a4_prevision": "./a4_graph.py:graph",
+    "a5_ecarts": "./a5_graph.py:graph",
+    "a6_controle": "./a6_graph.py:graph",
+    "a7_reporting": "./a7_graph.py:graph",
+    "a8_relecture": "./a8_graph.py:graph"
+  },
+  "env": ".env"
+}

@@ -1,0 +1,5 @@
+﻿{
+    "modele":  "muse-glimmer:latest",
+    "timeout":  true,
+    "limite_s":  300
+}
