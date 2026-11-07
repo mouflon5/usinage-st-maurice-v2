@@ -1,0 +1,23 @@
+{
+	auto_https off
+	admin off
+}
+
+:{$PORT:7860} {
+	# Pages et API du serveur du tableau (chemins absolus utilisés par le HTML et les diagrammes)
+	@tableau path /api/* /diagrammes/* /agents /static/plotly.min.js
+	handle @tableau {
+		reverse_proxy 127.0.0.1:8765
+	}
+
+	# Le tableau de trésorerie lui-même (sa racine « / » est prise par Streamlit)
+	handle /tableau* {
+		rewrite * /?{query}
+		reverse_proxy 127.0.0.1:8765
+	}
+
+	# Tout le reste : l'application Streamlit (WebSocket compris)
+	handle {
+		reverse_proxy 127.0.0.1:8501
+	}
+}

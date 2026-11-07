@@ -45,7 +45,10 @@ except Exception:
 if theme_global.appliquer_streamlit():      # couleurs natives du thème mémorisé : une relance suffit pour qu'elles soient envoyées au navigateur
     st.rerun()
 
-URL_TABLEAU = os.environ.get("DEMO_TABLEAU_URL", "http://127.0.0.1:8765/")
+URL_TABLEAU = os.environ.get("DEMO_TABLEAU_URL", "http://127.0.0.1:8765/")      # adresse vue du serveur (test de santé)
+# Adresses vues du NAVIGATEUR (iframes). En local ce sont les mêmes ; en ligne (Dockerfile + Caddy) elles passent par le même hôte.
+URL_TABLEAU_PUBLIC = os.environ.get("DEMO_URL_PUBLIQUE_TABLEAU", URL_TABLEAU)
+URL_RACINE_PUBLIQUE = os.environ.get("DEMO_URL_PUBLIQUE_RACINE", URL_TABLEAU.rstrip("/"))
 VERT, GRIS, JAUNE, ROUGE, BLEU = "#0ca30c", "#8f9aa8", "#fab219", "#d03b3b", "#2a78d6"
 
 TH = theme_global.cartes()
@@ -410,7 +413,7 @@ def vue_demo():
 
 
 def iframe_tableau(hauteur: int):
-    url = theme_global.avec_parametre(URL_TABLEAU)           # le thème choisi dans la barre latérale est imposé à la page
+    url = theme_global.avec_parametre(URL_TABLEAU_PUBLIC)    # le thème choisi dans la barre latérale est imposé à la page
     if hasattr(st, "iframe"):
         st.iframe(url, height=hauteur)
     else:
@@ -510,7 +513,7 @@ def vue_assistant():
 # --------------------------------------------------------------------------- #
 def vue_diagramme(page: str, legende: str, hauteur: int):
     st.caption(legende)
-    url = theme_global.avec_parametre(URL_TABLEAU.rstrip("/") + "/diagrammes/" + page)
+    url = theme_global.avec_parametre(URL_RACINE_PUBLIQUE + "/diagrammes/" + page)
     if hasattr(st, "iframe"):
         st.iframe(url, height=hauteur)
     else:
